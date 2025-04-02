@@ -4,6 +4,9 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+
 @theme {
   /* https://tailwindcss.com/docs/colors#customizing-your-colors */
   --color-*: initial;
@@ -95,6 +98,13 @@
   --color-zinc-800: oklch(0.274 0.006 286.033);
   --color-zinc-900: oklch(0.21 0.006 285.885);
   --color-zinc-950: oklch(0.141 0.005 285.823);
+
+
+   /* Custom Colors */
+   --color-swefish-blue: oklch(0.47 0.1289 253.11); /* Example: A medium blue */
+   --color-swefish-yellow: oklch(0.89 0.183254 96.5515); /* Example: A vibrant green */
+   --color-swefish-light-blue: oklch(0.68 0.0981 226.07); /* Example: A deep purple */
+
 }
 
 /*
@@ -117,5 +127,9 @@
   button:not(:disabled),
   [role="button"]:not(:disabled) {
     cursor: pointer;
+  }
+  /* Apply the Inter font to the body */
+  body {
+    font-family: 'Inter', sans-serif;
   }
 }
