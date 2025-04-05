@@ -44,16 +44,73 @@ const { categories } = Astro.props;
     </div>
     
     <!-- Mobile menu - horizontal scrolling categories -->
-    <div class="md:hidden overflow-x-auto whitespace-nowrap py-2 border-t border-gray-200 scrollbar-hide">
-      {categories.map((category) => (
-        <a
-          href={`#${category.id}`}
-          class="inline-block text-gray-700 hover:text-gray-900 px-3 py-2 text-sm font-medium"
-        >
-          {category.title}
-        </a>
-      ))}
+    <div class="md:hidden overflow-x-auto whitespace-nowrap py-2 border-t border-gray-200 scrollbar-hide -mx-4 px-4">
+      <div class="inline-flex space-x-1 pb-1">
+        {categories.map((category) => (
+          <a
+            href={`#${category.id}`}
+            class="inline-block text-gray-700 hover:text-gray-900 px-3 py-2 text-sm font-medium rounded-md whitespace-nowrap flex-shrink-0 border border-gray-100 bg-white shadow-sm"
+          >
+            {category.title}
+          </a>
+        ))}
+      </div>
     </div>
+    
+    <script>
+      // Add touch scrolling support for mobile
+      document.addEventListener('DOMContentLoaded', () => {
+        const scrollContainer = document.querySelector('.overflow-x-auto');
+        if (scrollContainer) {
+          let isDown = false;
+          let startX;
+          let scrollLeft;
+
+          scrollContainer.addEventListener('mousedown', (e) => {
+            isDown = true;
+            scrollContainer.classList.add('active');
+            startX = e.pageX - scrollContainer.offsetLeft;
+            scrollLeft = scrollContainer.scrollLeft;
+          });
+
+          scrollContainer.addEventListener('mouseleave', () => {
+            isDown = false;
+            scrollContainer.classList.remove('active');
+          });
+
+          scrollContainer.addEventListener('mouseup', () => {
+            isDown = false;
+            scrollContainer.classList.remove('active');
+          });
+
+          scrollContainer.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - scrollContainer.offsetLeft;
+            const walk = (x - startX) * 2; // Scroll speed
+            scrollContainer.scrollLeft = scrollLeft - walk;
+          });
+
+          // Touch events for mobile
+          scrollContainer.addEventListener('touchstart', (e) => {
+            isDown = true;
+            startX = e.touches[0].pageX - scrollContainer.offsetLeft;
+            scrollLeft = scrollContainer.scrollLeft;
+          }, { passive: true });
+
+          scrollContainer.addEventListener('touchend', () => {
+            isDown = false;
+          }, { passive: true });
+
+          scrollContainer.addEventListener('touchmove', (e) => {
+            if (!isDown) return;
+            const x = e.touches[0].pageX - scrollContainer.offsetLeft;
+            const walk = (x - startX) * 2;
+            scrollContainer.scrollLeft = scrollLeft - walk;
+          }, { passive: true });
+        }
+      });
+    </script>
   </div>
 </header>
 
@@ -67,6 +124,16 @@ const { categories } = Astro.props;
   .scrollbar-hide {
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
+  }
+
+  .overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+
+  .overflow-x-auto.active {
+    cursor: grabbing;
+    cursor: -webkit-grabbing;
   }
 </style>
 
