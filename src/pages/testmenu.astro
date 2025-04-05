@@ -150,7 +150,7 @@ const menuCategories = [
 
 <MainLayout title="SWEFISH - Seafood Restaurant Menu">
   <Navbar categories={menuCategories} />
-  
+
   <main class="pt-20 container mx-auto px-4 md:px-8 max-w-6xl">
     {menuCategories.map((category) => (
       <MenuSection id={category.id} title={category.title}>
@@ -165,8 +165,5 @@ const menuCategories = [
         ))}
       </MenuSection>
     ))}
-    
-    
   </main>
 </MainLayout>
-
