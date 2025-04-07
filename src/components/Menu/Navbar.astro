@@ -304,15 +304,49 @@ interface MenuCategory {
     // Add touch swiping for tabs
     let touchStartX = 0;
     let touchEndX = 0;
+    let touchStartY = 0;
+    let touchEndY = 0;
+    let isSwiping = false;
     
     tabsContainer.addEventListener('touchstart', function(e) {
       touchStartX = e.changedTouches[0].screenX;
-    }, false);
+      touchStartY = e.changedTouches[0].screenY;
+      isSwiping = true;
+    }, { passive: true });
+
+    tabsContainer.addEventListener('touchmove', function(e) {
+      if (!isSwiping) return;
+      
+      const currentX = e.changedTouches[0].screenX;
+      const currentY = e.changedTouches[0].screenY;
+      
+      // Calculate horizontal and vertical distance
+      const deltaX = Math.abs(currentX - touchStartX);
+      const deltaY = Math.abs(currentY - touchStartY);
+      
+      // If horizontal movement is greater than vertical, it's likely a tab swipe
+      // so prevent default to avoid page scrolling interference
+      if (deltaX > deltaY && deltaX > 10) {
+        e.preventDefault();
+      }
+    }, { passive: false });
     
     tabsContainer.addEventListener('touchend', function(e) {
+      if (!isSwiping) return;
+      
       touchEndX = e.changedTouches[0].screenX;
-      handleSwipe();
-    }, false);
+      touchEndY = e.changedTouches[0].screenY;
+      
+      // Only handle swipe if it's primarily horizontal
+      const deltaX = Math.abs(touchEndX - touchStartX);
+      const deltaY = Math.abs(touchEndY - touchStartY);
+      
+      if (deltaX > deltaY && deltaX > 30) {
+        handleSwipe();
+      }
+      
+      isSwiping = false;
+    }, { passive: true });
     
     function handleSwipe() {
       const currentActiveTab = document.querySelector('[data-tab].text-black');
@@ -321,12 +355,12 @@ interface MenuCategory {
       const allTabs = Array.from(tabButtons);
       const currentIndex = allTabs.indexOf(currentActiveTab);
       
-      if (touchEndX < touchStartX - 50 && currentIndex < allTabs.length - 1) {
+      if (touchEndX < touchStartX - 30 && currentIndex < allTabs.length - 1) {
         // Swipe left - go to next tab
         selectTab(allTabs[currentIndex + 1]);
       }
       
-      if (touchEndX > touchStartX + 50 && currentIndex > 0) {
+      if (touchEndX > touchStartX + 30 && currentIndex > 0) {
         // Swipe right - go to previous tab
         selectTab(allTabs[currentIndex - 1]);
       }
