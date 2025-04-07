@@ -2,8 +2,9 @@
 import MainLayout from "../layouts/MainLayout.astro";
 import MenuItem from "../components/Menu/MenuItem.astro";
 import menuData from "../data/menu.json";
+import type { MenuData } from "../utils/types";
 
-const { menuCategories } = menuData;
+const { menuCategories } = menuData as MenuData;
 ---
 
 <MainLayout title="Menu - SWEFISH">

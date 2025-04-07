@@ -2,6 +2,7 @@
 import Tag from "./Tag.astro";
 import { Image } from "astro:assets";
 import { getImage } from "../../utils/imageMap";
+import type { WeightOption } from "../../utils/types";
 
 // Import all product images
 import srirachaTahini from "../../images/products/Sriracha Tahini.jpg";
@@ -30,11 +31,6 @@ import specialRice from "../../images/products/SWEFISH Special Rice Large.jpg";
 import sevenUp from "../../images/products/7UP.jpg";
 import barbecueSauce from "../../images/products/Barbecue Sauce.jpg";
 import birell from "../../images/products/Birell Malt Drink Can.jpg";
-
-interface WeightOption {
-  weight: string;
-  price: number;
-}
 
 const { 
   title, 
