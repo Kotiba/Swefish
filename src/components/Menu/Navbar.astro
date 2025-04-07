@@ -57,11 +57,11 @@ interface MenuCategory {
     </div>
     
     <!-- Scrollable tabs container - this is hidden when menu opens -->
-    <div class="tabs-container flex overflow-x-auto scrollbar-hide pb-2 relative transition-opacity duration-200">
+    <div class="tabs-container flex overflow-x-auto scrollbar-hide pb-2 relative transition-opacity duration-200 snap-x snap-mandatory">
       {categories.map((category: MenuCategory, index: number) => (
         <button 
           data-tab={category.id} 
-          class={`flex-shrink-0 px-4 py-3 text-base font-medium whitespace-nowrap transition-colors relative ${
+          class={`flex-shrink-0 px-4 py-3 text-base font-medium whitespace-nowrap transition-colors relative snap-start ${
             index === 0 ? 'text-black' : 'text-gray-500'
           }`}
         >
@@ -105,7 +105,7 @@ interface MenuCategory {
   
   /* Active tab indicator animation */
   .tab-indicator {
-    transition: transform 0.3s ease, width 0.3s ease, left 0.3s ease;
+    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), left 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     /* Remove the left: 0 and w-full to make it match only text width */
     left: 0;
     width: 100%;
@@ -208,12 +208,8 @@ interface MenuCategory {
       // Update indicator width to match text width
       updateTabIndicator(tabElement);
       
-      // Scroll the tab into view (centered)
-      const scrollLeft = tabElement.offsetLeft - (tabsContainer.clientWidth / 2) + (tabElement.clientWidth / 2);
-      tabsContainer.scrollTo({
-        left: scrollLeft,
-        behavior: 'smooth'
-      });
+      // Scroll the tab into view (centered) with enhanced scrolling
+      scrollTabIntoView(tabElement);
       
       // Close vertical menu if open
       if (isVerticalMenuOpen) {
@@ -234,6 +230,23 @@ interface MenuCategory {
         indicator.style.width = `${textWidth}px`;
         indicator.style.left = `${textLeft}px`;
       }
+    }
+    
+    // Function to smoothly scroll tab into view
+    function scrollTabIntoView(tabElement) {
+      // Get tab position and container width
+      const tabLeft = tabElement.offsetLeft;
+      const tabWidth = tabElement.offsetWidth;
+      const containerWidth = tabsContainer.clientWidth;
+      
+      // Calculate center position
+      const scrollLeft = tabLeft - (containerWidth / 2) + (tabWidth / 2);
+      
+      // Apply smooth scrolling
+      tabsContainer.scrollTo({
+        left: Math.max(0, scrollLeft),
+        behavior: 'smooth'
+      });
     }
     
     // Initialize all tab indicators
@@ -316,16 +329,18 @@ interface MenuCategory {
       });
     });
     
-    // Add touch swiping for tabs
+    // Add touch swiping for tabs with improved handling
     let touchStartX = 0;
     let touchEndX = 0;
     let touchStartY = 0;
     let touchEndY = 0;
     let isSwiping = false;
+    let initialScrollLeft = 0;
     
     tabsContainer.addEventListener('touchstart', function(e) {
       touchStartX = e.changedTouches[0].screenX;
       touchStartY = e.changedTouches[0].screenY;
+      initialScrollLeft = tabsContainer.scrollLeft;
       isSwiping = true;
     }, { passive: true });
 
@@ -340,8 +355,12 @@ interface MenuCategory {
       const deltaY = Math.abs(currentY - touchStartY);
       
       // If horizontal movement is greater than vertical, it's likely a tab swipe
-      // so prevent default to avoid page scrolling interference
-      if (deltaX > deltaY && deltaX > 10) {
+      if (deltaX > deltaY && deltaX > 5) {
+        // Calculate how far to scroll the container
+        const scrollDelta = touchStartX - currentX;
+        tabsContainer.scrollLeft = initialScrollLeft + scrollDelta;
+        
+        // Prevent default scrolling to avoid page movement
         e.preventDefault();
       }
     }, { passive: false });
@@ -356,8 +375,15 @@ interface MenuCategory {
       const deltaX = Math.abs(touchEndX - touchStartX);
       const deltaY = Math.abs(touchEndY - touchStartY);
       
-      if (deltaX > deltaY && deltaX > 30) {
+      // If it's a quick, short tap, treat it as a tap rather than a swipe
+      if (deltaX < 10 && deltaY < 10) {
+        // It was a tap, don't process as swipe
+      } else if (deltaX > deltaY && deltaX > 30) {
+        // It was a deliberate swipe, handle tab change
         handleSwipe();
+      } else {
+        // If it was a scrolling gesture, find the most visible tab and snap to it
+        snapToNearestTab();
       }
       
       isSwiping = false;
@@ -378,6 +404,34 @@ interface MenuCategory {
       if (touchEndX > touchStartX + 30 && currentIndex > 0) {
         // Swipe right - go to previous tab
         selectTab(allTabs[currentIndex - 1]);
+      }
+    }
+    
+    function snapToNearestTab() {
+      // Find the tab that's most visible in the container
+      const containerLeft = tabsContainer.scrollLeft;
+      const containerWidth = tabsContainer.clientWidth;
+      const containerCenter = containerLeft + (containerWidth / 2);
+      
+      // Find the tab closest to the center of the viewport
+      let closestTab = null;
+      let closestDistance = Infinity;
+      
+      tabButtons.forEach(tab => {
+        const tabLeft = tab.offsetLeft;
+        const tabWidth = tab.offsetWidth;
+        const tabCenter = tabLeft + (tabWidth / 2);
+        const distance = Math.abs(tabCenter - containerCenter);
+        
+        if (distance < closestDistance) {
+          closestDistance = distance;
+          closestTab = tab;
+        }
+      });
+      
+      // Scroll to the closest tab
+      if (closestTab) {
+        scrollTabIntoView(closestTab);
       }
     }
     
