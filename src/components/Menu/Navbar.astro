@@ -105,7 +105,7 @@ interface MenuCategory {
   
   /* Active tab indicator animation */
   .tab-indicator {
-    transition: all 0.3s ease;
+    transition: transform 0.3s ease, width 0.3s ease, left 0.3s ease;
     /* Remove the left: 0 and w-full to make it match only text width */
     left: 0;
     width: 100%;
@@ -219,15 +219,6 @@ interface MenuCategory {
       if (isVerticalMenuOpen) {
         toggleVerticalMenu();
       }
-      
-      // Scroll to the corresponding section
-      const tabId = tabElement.getAttribute('data-tab');
-      if (tabId) {
-        const section = document.getElementById(tabId);
-        if (section) {
-          section.scrollIntoView({ behavior: 'smooth' });
-        }
-      }
     }
     
     // Function to update tab indicator width to match text width
@@ -256,6 +247,20 @@ interface MenuCategory {
     tabButtons.forEach(button => {
       button.addEventListener('click', function() {
         selectTab(this);
+        
+        // Scroll to the corresponding section - smooth scroll without snapping
+        const tabId = this.getAttribute('data-tab');
+        if (tabId) {
+          const section = document.getElementById(tabId);
+          if (section) {
+            // Use scrollIntoView with smooth behavior, but no snap alignment
+            window.scrollTo({
+              top: section.offsetTop - document.querySelector('header').offsetHeight - 
+                   document.querySelector('nav').offsetHeight,
+              behavior: 'smooth'
+            });
+          }
+        }
       });
     });
     
@@ -296,6 +301,16 @@ interface MenuCategory {
           const horizontalTab = document.querySelector(`[data-tab="${tabId}"]`);
           if (horizontalTab) {
             selectTab(horizontalTab);
+            
+            // Smooth scroll to section without snapping
+            const section = document.getElementById(tabId);
+            if (section) {
+              window.scrollTo({
+                top: section.offsetTop - document.querySelector('header').offsetHeight - 
+                     document.querySelector('nav').offsetHeight,
+                behavior: 'smooth'
+              });
+            }
           }
         }
       });
@@ -374,31 +389,37 @@ interface MenuCategory {
     const sections = Array.from(document.querySelectorAll('section[id]'));
     let currentActiveSection = null;
     
-    // Options for Intersection Observer
+    // Options for Intersection Observer with adjusted threshold
     const observerOptions = {
       root: null, // Use the viewport
       rootMargin: `-${navbarHeight}px 0px -50% 0px`, // Adjust for navbar height
-      threshold: 0.1 // Low threshold for better responsiveness
+      threshold: [0.1, 0.2, 0.5] // Multiple thresholds for smoother transitions
     };
     
     // Callback when section visibility changes
     const observerCallback = (entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const sectionId = entry.target.id;
+      // Get entries that are intersecting
+      const visibleEntries = entries.filter(entry => entry.isIntersecting);
+      
+      if (visibleEntries.length > 0) {
+        // Find the entry with the highest intersection ratio
+        const mostVisibleEntry = visibleEntries.reduce((prev, current) => {
+          return (prev.intersectionRatio > current.intersectionRatio) ? prev : current;
+        });
+        
+        const sectionId = mostVisibleEntry.target.id;
+        
+        // Only update if we have a new section
+        if (currentActiveSection !== sectionId) {
+          currentActiveSection = sectionId;
           
-          // Only update if we have a new section
-          if (currentActiveSection !== sectionId) {
-            currentActiveSection = sectionId;
-            
-            // Update active tab
-            const activeTab = document.querySelector(`[data-tab="${sectionId}"]`);
-            if (activeTab && !activeTab.classList.contains('text-black')) {
-              selectTab(activeTab);
-            }
+          // Update active tab
+          const activeTab = document.querySelector(`[data-tab="${sectionId}"]`);
+          if (activeTab && !activeTab.classList.contains('text-black')) {
+            selectTab(activeTab);
           }
         }
-      });
+      }
     };
     
     // Create and start the observer
