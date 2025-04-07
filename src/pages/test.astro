@@ -1,10 +1,8 @@
 ---
-import MainLayout from "@/layouts/MainLayout.astro";
+import MainLayout from "../layouts/MainLayout.astro";
 import BrandLogo from "@components/BrandLogo.astro";
 import VaulDrawerWrapper from "@components/ui/drawers/VaulDrawerWrapper";
-import PrimaryCTA from "@/components/ui/buttons/PrimaryCTA.astro";
-import Drawer from "../pages/astrodrawer.astro";
-
+import PrimaryCTA from "../components/ui/buttons/PrimaryCTA.astro";
 ---
 
 <MainLayout>
@@ -18,27 +16,8 @@ import Drawer from "../pages/astrodrawer.astro";
 
     <!-- <VaulDrawerWrapper client:only="react" /> -->
 
-
-
-       <div class="mt-32">
-
-          <Drawer id="basic-drawer">
-          
-            <PrimaryCTA title={'Open Basic Drawer'} slot="trigger" />
-            
-            <div class="p-4">
-              <h3 class="text-lg font-semibold mb-2">Basic Drawer Content</h3>
-              <p class="mb-4">This is a simple drawer that opens from the bottom.</p>
-              <button 
-                data-drawer-close="basic-drawer"
-                class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
-              >
-                Close
-              </button>
-            </div>
-          </Drawer>
-
-      </div>
-
+    <div class="mt-32">
+      <PrimaryCTA title="Coming Soon" />
+    </div>
   </div>
 </MainLayout>
