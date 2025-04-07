@@ -1,4 +1,4 @@
-import { ImageMetadata } from 'astro';
+import type { ImageMetadata } from 'astro';
 
 // Import all product images
 import srirachaTahini from "../images/products/Sriracha Tahini.jpg";
