@@ -1,120 +1,97 @@
 ---
-
 import BrandLogo from "../BrandLogo.astro";
 const { categories } = Astro.props;
+
+// Define types for our menu categories
+interface MenuCategory {
+  id: string;
+  title: string;
+  items: any[];
+}
 ---
 
-<header class="fixed top-0 left-0 right-0 bg-white shadow-md z-50">
-  <div class="container mx-auto px-4">
-    <div class="flex items-center justify-between h-16">
-      <div class="flex items-center">
-        <BrandLogo class="h-8 w-auto" />
-      </div>
-      
-      <div class="hidden md:block">
-        <div class="flex items-center space-x-4">
-          {categories.map((category) => (
-            <a
-              href={`#${category.id}`}
-              class="text-gray-700 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors duration-200 hover:bg-gray-100 rounded-md"
-            >
-              {category.title}
-            </a>
-          ))}
-        </div>
-      </div>
-      
-      <div class="flex items-center space-x-2">
-        <button class="p-2 rounded-full hover:bg-gray-100">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-          </svg>
-        </button>
-        <button class="p-2 rounded-full hover:bg-gray-100">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-          </svg>
-        </button>
-        <button class="p-2 rounded-full hover:bg-gray-100">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-        </button>
-      </div>
-    </div>
-    
-    <!-- Mobile menu - horizontal scrolling categories -->
-    <div class="md:hidden overflow-x-auto whitespace-nowrap py-2 border-t border-gray-200 scrollbar-hide -mx-4 px-4">
-      <div class="inline-flex space-x-1 pb-1">
-        {categories.map((category) => (
-          <a
-            href={`#${category.id}`}
-            class="inline-block text-gray-700 hover:text-gray-900 px-3 py-2 text-sm font-medium rounded-md whitespace-nowrap flex-shrink-0 border border-gray-100 bg-white shadow-sm"
-          >
-            {category.title}
-          </a>
-        ))}
-      </div>
-    </div>
-    
-    <!-- <script>
-      // Add touch scrolling support for mobile
-      document.addEventListener('DOMContentLoaded', () => {
-        const scrollContainer = document.querySelector('.overflow-x-auto');
-        if (scrollContainer) {
-          let isDown = false;
-          let startX;
-          let scrollLeft;
-
-          scrollContainer.addEventListener('mousedown', (e) => {
-            isDown = true;
-            scrollContainer.classList.add('active');
-            startX = e.pageX - scrollContainer.offsetLeft;
-            scrollLeft = scrollContainer.scrollLeft;
-          });
-
-          scrollContainer.addEventListener('mouseleave', () => {
-            isDown = false;
-            scrollContainer.classList.remove('active');
-          });
-
-          scrollContainer.addEventListener('mouseup', () => {
-            isDown = false;
-            scrollContainer.classList.remove('active');
-          });
-
-          scrollContainer.addEventListener('mousemove', (e) => {
-            if (!isDown) return;
-            e.preventDefault();
-            const x = e.pageX - scrollContainer.offsetLeft;
-            const walk = (x - startX) * 2; // Scroll speed
-            scrollContainer.scrollLeft = scrollLeft - walk;
-          });
-
-          // Touch events for mobile
-          scrollContainer.addEventListener('touchstart', (e) => {
-            isDown = true;
-            startX = e.touches[0].pageX - scrollContainer.offsetLeft;
-            scrollLeft = scrollContainer.scrollLeft;
-          }, { passive: true });
-
-          scrollContainer.addEventListener('touchend', () => {
-            isDown = false;
-          }, { passive: true });
-
-          scrollContainer.addEventListener('touchmove', (e) => {
-            if (!isDown) return;
-            const x = e.touches[0].pageX - scrollContainer.offsetLeft;
-            const walk = (x - startX) * 2;
-            scrollContainer.scrollLeft = scrollLeft - walk;
-          }, { passive: true });
-        }
-      });
-    </script> -->
+<header class="fixed top-0 left-0 right-0 z-20 bg-white px-4 py-3 flex items-center justify-between border-b">
+  <div class="flex items-center">
+    <button class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center mr-4">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="m12 19-7-7 7-7" />
+        <path d="M19 12H5" />
+      </svg>
+    </button>
+    <BrandLogo class="h-8 w-auto" />
+  </div>
+  <div class="flex items-center space-x-2">
+    <button class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+      </svg>
+    </button>
+    <button class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+        <polyline points="16 6 12 2 8 6" />
+        <line x1="12" x2="12" y1="2" y2="15" />
+      </svg>
+    </button>
+    <button class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8" />
+        <path d="m21 21-4.3-4.3" />
+      </svg>
+    </button>
   </div>
 </header>
 
-<!-- <style>
+<!-- Menu navigation with tabs -->
+<nav class="fixed top-16 left-0 right-0 z-10 bg-white border-b">
+  <div class="tab-bar-container">
+    <!-- Menu button - absolutely positioned to prevent any movement -->
+    <div class="hamburger-container">
+      <button id="hamburger-menu" class="p-3 transition-colors hover:text-black focus:outline-none">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="4" x2="20" y1="12" y2="12" />
+          <line x1="4" x2="20" y1="6" y2="6" />
+          <line x1="4" x2="20" y1="18" y2="18" />
+        </svg>
+      </button>
+    </div>
+    
+    <!-- Scrollable tabs container - this is hidden when menu opens -->
+    <div class="tabs-container flex overflow-x-auto scrollbar-hide pb-2 relative transition-opacity duration-200">
+      {categories.map((category: MenuCategory, index: number) => (
+        <button 
+          data-tab={category.id} 
+          class={`flex-shrink-0 px-4 py-3 text-base font-medium whitespace-nowrap transition-colors relative ${
+            index === 0 ? 'text-black' : 'text-gray-500'
+          }`}
+        >
+          {category.title}
+          <div class={`tab-indicator absolute bottom-0 left-0 w-full h-0.5 bg-black ${
+            index === 0 ? '' : 'opacity-0'
+          }`}></div>
+        </button>
+      ))}
+    </div>
+  </div>
+  
+  <!-- Vertical menu (hidden by default) - positioned directly UNDER the tab bar -->
+  <div id="vertical-menu" class="vertical-menu w-full bg-white shadow-md border-t">
+    <div class="py-2 px-4">
+      {categories.map((category: MenuCategory) => (
+        <button 
+          data-vertical-tab={category.id} 
+          class={`block w-full text-left py-3 border-b border-gray-100 ${
+            category.id === categories[0].id ? 'font-medium' : ''
+          }`}
+        >
+          {category.title}
+        </button>
+      ))}
+    </div>
+  </div>
+</nav>
+
+<style>
   /* Hide scrollbar for Chrome, Safari and Opera */
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
@@ -125,15 +102,197 @@ const { categories } = Astro.props;
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
   }
-
-  .overflow-x-auto {
-    -webkit-overflow-scrolling: touch;
-    scroll-behavior: smooth;
+  
+  /* Active tab indicator animation */
+  .tab-indicator {
+    transition: transform 0.3s ease;
   }
-
-  .overflow-x-auto.active {
-    cursor: grabbing;
-    cursor: -webkit-grabbing;
+  
+  /* Vertical menu animation */
+  .vertical-menu {
+    transform: translateY(-20px);
+    opacity: 0;
+    visibility: hidden;
+    transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), 
+                opacity 0.2s ease,
+                visibility 0s linear 0.3s;
+    height: 0;
+    overflow: hidden;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 30;
   }
-</style> -->
+  
+  .vertical-menu.open {
+    transform: translateY(0);
+    opacity: 1;
+    visibility: visible;
+    transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), 
+                opacity 0.2s ease,
+                visibility 0s linear 0s;
+    height: auto;
+  }
+  
+  /* Absolutely position the hamburger to prevent any movement */
+  .hamburger-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 56px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+  
+  /* Ensure tab bar maintains consistent height */
+  .tab-bar-container {
+    position: relative;
+    height: 56px; /* Fixed height to match tabs */
+  }
+  
+  /* Add padding to tabs container to make room for hamburger */
+  .tabs-container {
+    position: absolute;
+    left: 56px; /* Match hamburger container width */
+    right: 0;
+    padding-left: 0; /* Remove the previous padding */
+    overflow-x: auto;
+  }
+</style>
+
+<!-- Use client-side script to avoid TypeScript errors -->
+<script is:inline>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Get all tab buttons
+    const tabButtons = document.querySelectorAll('[data-tab]');
+    const hamburgerButton = document.getElementById('hamburger-menu');
+    const verticalMenu = document.getElementById('vertical-menu');
+    const tabsContainer = document.querySelector('.tabs-container');
+    let isVerticalMenuOpen = false;
+    
+    if (!hamburgerButton || !verticalMenu || !tabsContainer) return;
+    
+    // Function to handle tab selection
+    function selectTab(tabElement) {
+      // Remove active class from all tabs
+      tabButtons.forEach(btn => {
+        btn.classList.remove('text-black');
+        btn.classList.add('text-gray-500');
+        const indicator = btn.querySelector('.tab-indicator');
+        if (indicator) indicator.classList.add('opacity-0');
+      });
+      
+      // Add active class to clicked tab
+      tabElement.classList.remove('text-gray-500');
+      tabElement.classList.add('text-black');
+      const indicator = tabElement.querySelector('.tab-indicator');
+      if (indicator) indicator.classList.remove('opacity-0');
+      
+      // Scroll the tab into view (centered)
+      const scrollLeft = tabElement.offsetLeft - (tabsContainer.clientWidth / 2) + (tabElement.clientWidth / 2);
+      tabsContainer.scrollTo({
+        left: scrollLeft,
+        behavior: 'smooth'
+      });
+      
+      // Close vertical menu if open
+      if (isVerticalMenuOpen) {
+        toggleVerticalMenu();
+      }
+      
+      // Scroll to the corresponding section
+      const tabId = tabElement.getAttribute('data-tab');
+      if (tabId) {
+        const section = document.getElementById(tabId);
+        if (section) {
+          section.scrollIntoView({ behavior: 'smooth' });
+        }
+      }
+    }
+    
+    // Add click event to each tab
+    tabButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        selectTab(this);
+      });
+    });
+    
+    // Toggle vertical menu
+    function toggleVerticalMenu() {
+      isVerticalMenuOpen = !isVerticalMenuOpen;
+      
+      if (isVerticalMenuOpen) {
+        // Hide tabs container
+        tabsContainer.classList.add('invisible', 'opacity-0');
+        
+        // Show vertical menu
+        verticalMenu.classList.add('open');
+        
+        // Highlight hamburger button
+        hamburgerButton.classList.add('text-black');
+      } else {
+        // Show tabs container
+        tabsContainer.classList.remove('invisible', 'opacity-0');
+        
+        // Hide vertical menu
+        verticalMenu.classList.remove('open');
+        
+        // Reset hamburger button
+        hamburgerButton.classList.remove('text-black');
+      }
+    }
+    
+    // Hamburger menu click event
+    hamburgerButton.addEventListener('click', toggleVerticalMenu);
+    
+    // Vertical menu tab click events
+    const verticalTabButtons = document.querySelectorAll('[data-vertical-tab]');
+    verticalTabButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        const tabId = this.getAttribute('data-vertical-tab');
+        if (tabId) {
+          const horizontalTab = document.querySelector(`[data-tab="${tabId}"]`);
+          if (horizontalTab) {
+            selectTab(horizontalTab);
+          }
+        }
+      });
+    });
+    
+    // Add touch swiping for tabs
+    let touchStartX = 0;
+    let touchEndX = 0;
+    
+    tabsContainer.addEventListener('touchstart', function(e) {
+      touchStartX = e.changedTouches[0].screenX;
+    }, false);
+    
+    tabsContainer.addEventListener('touchend', function(e) {
+      touchEndX = e.changedTouches[0].screenX;
+      handleSwipe();
+    }, false);
+    
+    function handleSwipe() {
+      const currentActiveTab = document.querySelector('[data-tab].text-black');
+      if (!currentActiveTab) return;
+      
+      const allTabs = Array.from(tabButtons);
+      const currentIndex = allTabs.indexOf(currentActiveTab);
+      
+      if (touchEndX < touchStartX - 50 && currentIndex < allTabs.length - 1) {
+        // Swipe left - go to next tab
+        selectTab(allTabs[currentIndex + 1]);
+      }
+      
+      if (touchEndX > touchStartX + 50 && currentIndex > 0) {
+        // Swipe right - go to previous tab
+        selectTab(allTabs[currentIndex - 1]);
+      }
+    }
+  });
+</script>
 

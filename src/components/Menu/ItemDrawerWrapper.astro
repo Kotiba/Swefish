@@ -1,0 +1,44 @@
+---
+import ItemDrawer from './ItemDrawer';
+---
+
+<ItemDrawer client:visible />
+
+<script>
+  // We'll use custom events to control the drawer
+  document.addEventListener('DOMContentLoaded', function() {
+    let drawerOpen = false;
+    let selectedItem = null;
+    
+    // Listen for the custom event to open the drawer
+    document.addEventListener('openItemDrawer', function(e) {
+      if (e instanceof CustomEvent) {
+        const item = e.detail;
+        selectedItem = item;
+        
+        // Update drawer component props through the window object
+        // (this is a simple way to communicate with the React component)
+        window.itemDrawerState = {
+          isOpen: true,
+          item: selectedItem
+        };
+        
+        // Dispatch event that React component will listen for
+        document.dispatchEvent(new CustomEvent('itemDrawerUpdate'));
+        
+        drawerOpen = true;
+      }
+    });
+    
+    // Function to close the drawer (can be called from other scripts)
+    window.closeItemDrawer = function() {
+      window.itemDrawerState = {
+        isOpen: false,
+        item: selectedItem
+      };
+      
+      document.dispatchEvent(new CustomEvent('itemDrawerUpdate'));
+      drawerOpen = false;
+    };
+  });
+</script> 

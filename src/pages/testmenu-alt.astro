@@ -2,30 +2,29 @@
 import MainLayout from "@/layouts/MainLayout.astro";
 import Navbar from "@/components/Menu/Navbar.astro";
 import MenuSection from "@/components/Menu/MenuSection.astro";
-import MenuItem from "@/components/Menu/MenuItem.astro";
+import MenuItemOld from "@/components/Menu/MenuItemOld.astro";
 import menuData from "@/data/menu.json";
 
 const { menuCategories } = menuData;
 ---
 
-<MainLayout title="SWEFISH">
+<MainLayout title="SWEFISH - Alternative Layout">
   <Navbar categories={menuCategories} />
 
   <main class="pt-32 pb-20 container mx-auto px-4 md:px-8 max-w-6xl">
     {menuCategories.map((category) => (
       <MenuSection id={category.id} title={category.title}>
         {category.items.map((item) => (
-          <MenuItem
+          <MenuItemOld
             title={item.title}
             description={item.description}
             price={item.price}
             image={item.image}
             isTopRated={item.isTopRated}
             fullWidth={item.fullWidth}
-            weightOptions={item.weightOptions}
           />
         ))}
       </MenuSection>
     ))}
   </main>
-</MainLayout>
+</MainLayout> 
