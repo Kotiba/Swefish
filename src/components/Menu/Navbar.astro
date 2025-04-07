@@ -57,11 +57,11 @@ interface MenuCategory {
     </div>
     
     <!-- Scrollable tabs container - this is hidden when menu opens -->
-    <div class="tabs-container flex overflow-x-auto scrollbar-hide pb-2 relative transition-opacity duration-200 snap-x snap-mandatory">
+    <div class="tabs-container flex overflow-x-auto scrollbar-hide pb-2 relative transition-opacity duration-200">
       {categories.map((category: MenuCategory, index: number) => (
         <button 
           data-tab={category.id} 
-          class={`flex-shrink-0 px-4 py-3 text-base font-medium whitespace-nowrap transition-colors relative snap-start ${
+          class={`flex-shrink-0 px-4 py-3 text-base font-medium whitespace-nowrap transition-colors relative ${
             index === 0 ? 'text-black' : 'text-gray-500'
           }`}
         >
@@ -105,7 +105,7 @@ interface MenuCategory {
   
   /* Active tab indicator animation */
   .tab-indicator {
-    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), left 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    transition: transform 0.3s ease, width 0.3s ease, left 0.3s ease;
     /* Remove the left: 0 and w-full to make it match only text width */
     left: 0;
     width: 100%;
@@ -208,8 +208,12 @@ interface MenuCategory {
       // Update indicator width to match text width
       updateTabIndicator(tabElement);
       
-      // Scroll the tab into view (centered) with enhanced scrolling
-      scrollTabIntoView(tabElement);
+      // Scroll the tab into view (centered)
+      const scrollLeft = tabElement.offsetLeft - (tabsContainer.clientWidth / 2) + (tabElement.clientWidth / 2);
+      tabsContainer.scrollTo({
+        left: Math.max(0, scrollLeft),
+        behavior: 'smooth'
+      });
       
       // Close vertical menu if open
       if (isVerticalMenuOpen) {
@@ -230,23 +234,6 @@ interface MenuCategory {
         indicator.style.width = `${textWidth}px`;
         indicator.style.left = `${textLeft}px`;
       }
-    }
-    
-    // Function to smoothly scroll tab into view
-    function scrollTabIntoView(tabElement) {
-      // Get tab position and container width
-      const tabLeft = tabElement.offsetLeft;
-      const tabWidth = tabElement.offsetWidth;
-      const containerWidth = tabsContainer.clientWidth;
-      
-      // Calculate center position
-      const scrollLeft = tabLeft - (containerWidth / 2) + (tabWidth / 2);
-      
-      // Apply smooth scrolling
-      tabsContainer.scrollTo({
-        left: Math.max(0, scrollLeft),
-        behavior: 'smooth'
-      });
     }
     
     // Initialize all tab indicators
@@ -329,111 +316,12 @@ interface MenuCategory {
       });
     });
     
-    // Add touch swiping for tabs with improved handling
+    // Add simple touch swiping for tabs
     let touchStartX = 0;
-    let touchEndX = 0;
-    let touchStartY = 0;
-    let touchEndY = 0;
-    let isSwiping = false;
-    let initialScrollLeft = 0;
     
-    tabsContainer.addEventListener('touchstart', function(e) {
-      touchStartX = e.changedTouches[0].screenX;
-      touchStartY = e.changedTouches[0].screenY;
-      initialScrollLeft = tabsContainer.scrollLeft;
-      isSwiping = true;
+    tabsContainer.addEventListener('scroll', function() {
+      // This deliberately empty handler enables momentum scrolling on iOS
     }, { passive: true });
-
-    tabsContainer.addEventListener('touchmove', function(e) {
-      if (!isSwiping) return;
-      
-      const currentX = e.changedTouches[0].screenX;
-      const currentY = e.changedTouches[0].screenY;
-      
-      // Calculate horizontal and vertical distance
-      const deltaX = Math.abs(currentX - touchStartX);
-      const deltaY = Math.abs(currentY - touchStartY);
-      
-      // If horizontal movement is greater than vertical, it's likely a tab swipe
-      if (deltaX > deltaY && deltaX > 5) {
-        // Calculate how far to scroll the container
-        const scrollDelta = touchStartX - currentX;
-        tabsContainer.scrollLeft = initialScrollLeft + scrollDelta;
-        
-        // Prevent default scrolling to avoid page movement
-        e.preventDefault();
-      }
-    }, { passive: false });
-    
-    tabsContainer.addEventListener('touchend', function(e) {
-      if (!isSwiping) return;
-      
-      touchEndX = e.changedTouches[0].screenX;
-      touchEndY = e.changedTouches[0].screenY;
-      
-      // Only handle swipe if it's primarily horizontal
-      const deltaX = Math.abs(touchEndX - touchStartX);
-      const deltaY = Math.abs(touchEndY - touchStartY);
-      
-      // If it's a quick, short tap, treat it as a tap rather than a swipe
-      if (deltaX < 10 && deltaY < 10) {
-        // It was a tap, don't process as swipe
-      } else if (deltaX > deltaY && deltaX > 30) {
-        // It was a deliberate swipe, handle tab change
-        handleSwipe();
-      } else {
-        // If it was a scrolling gesture, find the most visible tab and snap to it
-        snapToNearestTab();
-      }
-      
-      isSwiping = false;
-    }, { passive: true });
-    
-    function handleSwipe() {
-      const currentActiveTab = document.querySelector('[data-tab].text-black');
-      if (!currentActiveTab) return;
-      
-      const allTabs = Array.from(tabButtons);
-      const currentIndex = allTabs.indexOf(currentActiveTab);
-      
-      if (touchEndX < touchStartX - 30 && currentIndex < allTabs.length - 1) {
-        // Swipe left - go to next tab
-        selectTab(allTabs[currentIndex + 1]);
-      }
-      
-      if (touchEndX > touchStartX + 30 && currentIndex > 0) {
-        // Swipe right - go to previous tab
-        selectTab(allTabs[currentIndex - 1]);
-      }
-    }
-    
-    function snapToNearestTab() {
-      // Find the tab that's most visible in the container
-      const containerLeft = tabsContainer.scrollLeft;
-      const containerWidth = tabsContainer.clientWidth;
-      const containerCenter = containerLeft + (containerWidth / 2);
-      
-      // Find the tab closest to the center of the viewport
-      let closestTab = null;
-      let closestDistance = Infinity;
-      
-      tabButtons.forEach(tab => {
-        const tabLeft = tab.offsetLeft;
-        const tabWidth = tab.offsetWidth;
-        const tabCenter = tabLeft + (tabWidth / 2);
-        const distance = Math.abs(tabCenter - containerCenter);
-        
-        if (distance < closestDistance) {
-          closestDistance = distance;
-          closestTab = tab;
-        }
-      });
-      
-      // Scroll to the closest tab
-      if (closestTab) {
-        scrollTabIntoView(closestTab);
-      }
-    }
     
     // Implement scrollspy using Intersection Observer for better performance
     const navbarHeight = document.querySelector('header').offsetHeight + 
@@ -445,35 +333,29 @@ interface MenuCategory {
     
     // Options for Intersection Observer with adjusted threshold
     const observerOptions = {
-      root: null, // Use the viewport
-      rootMargin: `-${navbarHeight}px 0px -50% 0px`, // Adjust for navbar height
-      threshold: [0.1, 0.2, 0.5] // Multiple thresholds for smoother transitions
+      root: null,
+      rootMargin: `-${navbarHeight}px 0px -50% 0px`,
+      threshold: 0.1
     };
     
     // Callback when section visibility changes
     const observerCallback = (entries) => {
-      // Get entries that are intersecting
-      const visibleEntries = entries.filter(entry => entry.isIntersecting);
-      
-      if (visibleEntries.length > 0) {
-        // Find the entry with the highest intersection ratio
-        const mostVisibleEntry = visibleEntries.reduce((prev, current) => {
-          return (prev.intersectionRatio > current.intersectionRatio) ? prev : current;
-        });
-        
-        const sectionId = mostVisibleEntry.target.id;
-        
-        // Only update if we have a new section
-        if (currentActiveSection !== sectionId) {
-          currentActiveSection = sectionId;
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const sectionId = entry.target.id;
           
-          // Update active tab
-          const activeTab = document.querySelector(`[data-tab="${sectionId}"]`);
-          if (activeTab && !activeTab.classList.contains('text-black')) {
-            selectTab(activeTab);
+          // Only update if we have a new section
+          if (currentActiveSection !== sectionId) {
+            currentActiveSection = sectionId;
+            
+            // Update active tab
+            const activeTab = document.querySelector(`[data-tab="${sectionId}"]`);
+            if (activeTab && !activeTab.classList.contains('text-black')) {
+              selectTab(activeTab);
+            }
           }
         }
-      }
+      });
     };
     
     // Create and start the observer
