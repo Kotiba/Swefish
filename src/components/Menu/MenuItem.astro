@@ -54,7 +54,7 @@ const imageSrc = getImage(image);
 
 {fullWidth ? (
   <div class="col-span-2">
-    <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:bg-[#FAFAFA]">
+    <div class="bg-white rounded-xl overflow-hidden  border border-gray-200 shadow-sm hover:bg-[#FAFAFA]">
       <div class="flex gap-4 p-4">
         <div class="w-28 h-28 sm:w-36 sm:h-36 md:w-56 md:h-56 bg-gray-200 flex-shrink-0 rounded-lg overflow-hidden">
           <Image
@@ -91,7 +91,7 @@ const imageSrc = getImage(image);
     </div>
   </div>
 ) : (
-  <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:bg-[#FAFAFA]">
+  <div class="bg-white rounded-xl overflow-hidden  border border-gray-200 shadow-sm hover:bg-[#FAFAFA]">
     <div class="relative h-36 bg-gray-200">
       <Image
         src={imageSrc}
