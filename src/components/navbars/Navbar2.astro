@@ -33,7 +33,7 @@ interface MenuCategory {
       {categories.map((category: MenuCategory, index: number) => (
         <a 
           href={`#${category.id}`}
-          class="tab-link flex-shrink-0 px-4 py-3 text-base font-medium whitespace-nowrap transition-colors relative"
+          class="tab-link flex-shrink-0 px-4 py-3 text-base font-medium whitespace-nowrap transition-all relative"
           data-section-id={category.id}
         >
           {category.title}
@@ -78,10 +78,20 @@ interface MenuCategory {
   
   .tab-link[data-active="true"] {
     color: black;
+    font-weight: 600;
   }
   
   .tab-link[data-active="true"] .tab-indicator {
     transform: scaleX(1);
+  }
+  
+  /* Active tab feedback */
+  .tab-link {
+    transition: color 0.2s ease, transform 0.1s ease;
+  }
+  
+  .tab-link:active {
+    transform: scale(0.96);
   }
   
   /* Vertical menu animation */
@@ -129,6 +139,7 @@ interface MenuCategory {
   .tab-bar-container {
     position: relative;
     height: 56px; /* Fixed height to match tabs */
+    will-change: transform; /* Optimize for animation performance */
   }
   
   /* Add padding to tabs container to make room for hamburger */
@@ -142,6 +153,20 @@ interface MenuCategory {
     /* Basic scrolling behavior - no fancy effects that could cause glitches */
     -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
     overscroll-behavior-x: contain; /* Prevents page refresh on horizontal overscroll */
+    will-change: scroll-position; /* Optimize scrolling performance */
+  }
+  
+  /* Fade indicator for scroll edges */
+  .tab-bar-container::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    width: 24px;
+    background: linear-gradient(to right, rgba(255,255,255,0), rgba(255,255,255,0.9));
+    pointer-events: none;
+    z-index: 5;
   }
   
   /* Native smooth scrolling */
@@ -202,12 +227,39 @@ interface MenuCategory {
       });
     });
     
+    // Scroll tab into view when it becomes active
+    function scrollTabIntoView(tabElement: Element): void {
+      if (!tabsContainer) return;
+      
+      const containerWidth = tabsContainer.clientWidth;
+      const tabRect = tabElement.getBoundingClientRect();
+      const containerRect = tabsContainer.getBoundingClientRect();
+      
+      // Only scroll if tab is not fully visible
+      if (tabRect.left < containerRect.left || tabRect.right > containerRect.right) {
+        // Calculate position to put tab in the center
+        const leftPosition = tabElement.getBoundingClientRect().left + 
+                             tabsContainer.scrollLeft - 
+                             containerRect.left -
+                             (containerWidth / 2) + 
+                             (tabRect.width / 2);
+        
+        // Use requestAnimationFrame for smoother animation
+        requestAnimationFrame(() => {
+          tabsContainer.scrollTo({
+            left: leftPosition,
+            behavior: 'smooth'
+          });
+        });
+      }
+    }
+    
     // Find the active tab by visible section
     function updateActiveTab(): void {
       if (activeNavigation) return; // Skip during active navigation
       
       // Find the section that's most visible in the viewport
-      let mostVisibleSection: HTMLElement | null = null;
+      let mostVisibleSection: Element | null = null;
       let maxVisibility = 0;
       
       const navbarHeight = 110; // Approximate header + nav height
@@ -220,16 +272,34 @@ interface MenuCategory {
         
         if (visibleRatio > maxVisibility && visibleRatio > 0.1) { // At least 10% visible
           maxVisibility = visibleRatio;
-          mostVisibleSection = section as HTMLElement;
+          mostVisibleSection = section;
         }
       });
       
-      if (mostVisibleSection && mostVisibleSection.id) {
-        const sectionId = mostVisibleSection.id;
-        tabLinks.forEach(link => {
-          const isActive = link.getAttribute('data-section-id') === sectionId;
-          link.setAttribute('data-active', isActive ? 'true' : 'false');
-        });
+      if (mostVisibleSection) {
+        // Type assertion to tell TypeScript this is an HTMLElement with an id
+        const sectionElement = mostVisibleSection as HTMLElement;
+        const sectionId = sectionElement.id;
+        
+        if (sectionId) {
+          // Find the active tab link
+          const activeTab = document.querySelector(`.tab-link[data-section-id="${sectionId}"]`);
+          
+          if (activeTab) {
+            // Update active states
+            tabLinks.forEach(link => {
+              const isActive = link === activeTab;
+              if (isActive !== (link.getAttribute('data-active') === 'true')) {
+                link.setAttribute('data-active', isActive ? 'true' : 'false');
+                
+                // Only scroll the tab into view if it's newly activated
+                if (isActive) {
+                  scrollTabIntoView(link);
+                }
+              }
+            });
+          }
+        }
       }
     }
     
@@ -243,12 +313,21 @@ interface MenuCategory {
         
         // Mark active link immediately for better UX
         tabLinks.forEach(tab => {
-          tab.setAttribute('data-active', tab === link ? 'true' : 'false');
+          const wasActive = tab.getAttribute('data-active') === 'true';
+          const willBeActive = tab === link;
+          
+          if (wasActive !== willBeActive) {
+            tab.setAttribute('data-active', willBeActive ? 'true' : 'false');
+          }
         });
         
         // Get section and scroll to it
         const targetSection = document.getElementById(sectionId);
         if (targetSection) {
+          // Visual feedback on click
+          link.classList.add('clicked');
+          setTimeout(() => link.classList.remove('clicked'), 200);
+          
           // Set navigation lock
           activeNavigation = true;
           
@@ -264,6 +343,8 @@ interface MenuCategory {
           // Release navigation lock after animation completes
           setTimeout(() => {
             activeNavigation = false;
+            // Update active tab after scrolling is complete
+            updateActiveTab();
           }, 500); // Adjust based on scroll animation duration
         }
       });
@@ -284,6 +365,11 @@ interface MenuCategory {
     
     // Use throttled scroll event for updating active tab
     window.addEventListener('scroll', throttle(updateActiveTab, 100));
+    
+    // Also update on resize
+    window.addEventListener('resize', throttle(() => {
+      updateActiveTab();
+    }, 100));
     
     // Initial call to set active tab
     updateActiveTab();
