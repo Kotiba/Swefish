@@ -33,11 +33,11 @@ interface MenuCategory {
       {categories.map((category: MenuCategory, index: number) => (
         <a 
           href={`#${category.id}`}
-          class="tab-link flex-shrink-0 px-4 py-3 text-base font-medium whitespace-nowrap transition-all relative"
+          class="tab-link flex-shrink-0 px-4 py-3 text-base font-medium whitespace-nowrap transition-all relative flex flex-col items-center"
           data-section-id={category.id}
         >
-          {category.title}
-          <span class="tab-indicator absolute bottom-0 left-0 w-full h-0.5 scale-x-0 transition-transform duration-300 bg-black"></span>
+          <span class="tab-text">{category.title}</span>
+          <span class="tab-indicator absolute bottom-0 h-[2px] bg-black rounded-sm"></span>
         </a>
       ))}
     </div>
@@ -74,15 +74,12 @@ interface MenuCategory {
   /* Set active state for tab links */
   .tab-link {
     color: #6b7280; /* Default gray color */
+    font-weight: 600; /* Make all tabs bold */
+    padding-bottom: 10px; /* Add extra padding for indicator */
   }
   
   .tab-link[data-active="true"] {
     color: black;
-    font-weight: 600;
-  }
-  
-  .tab-link[data-active="true"] .tab-indicator {
-    transform: scaleX(1);
   }
   
   /* Active tab feedback */
@@ -92,6 +89,33 @@ interface MenuCategory {
   
   .tab-link:active {
     transform: scale(0.96);
+  }
+  
+  /* Tab indicator styles */
+  .tab-indicator {
+    width: 0; /* Start with zero width */
+    opacity: 0;
+    transition: width 0.3s ease, opacity 0.3s ease;
+  }
+  
+  .tab-link[data-active="true"] .tab-indicator {
+    width: 100%; /* Same width as the text */
+    opacity: 1;
+  }
+  
+  /* Position indicator relative to text element for proper width */
+  .tab-text {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .tab-indicator {
+    bottom: 0;
+    left: 0; 
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
   }
   
   /* Vertical menu animation */
@@ -254,7 +278,29 @@ interface MenuCategory {
       }
     }
     
-    // Find the active tab by visible section
+    // Update indicator widths based on text content
+    function updateIndicatorWidths() {
+      tabLinks.forEach(link => {
+        const textElement = link.querySelector('.tab-text');
+        const indicator = link.querySelector('.tab-indicator');
+        
+        if (textElement && indicator) {
+          // Set indicator width based on text width
+          const textWidth = textElement.getBoundingClientRect().width;
+          indicator.style.width = `${textWidth}px`;
+          
+          // Initially hide indicator for non-active tabs
+          if (link.getAttribute('data-active') !== 'true') {
+            indicator.style.width = '0px';
+          }
+        }
+      });
+    }
+    
+    // Update indicator widths on initial load
+    updateIndicatorWidths();
+    
+    // Override active tab style updates
     function updateActiveTab(): void {
       if (activeNavigation) return; // Skip during active navigation
       
@@ -292,6 +338,16 @@ interface MenuCategory {
               if (isActive !== (link.getAttribute('data-active') === 'true')) {
                 link.setAttribute('data-active', isActive ? 'true' : 'false');
                 
+                // Update indicator width
+                const indicator = link.querySelector('.tab-indicator');
+                const textElement = link.querySelector('.tab-text');
+                
+                if (indicator && textElement) {
+                  const textWidth = textElement.getBoundingClientRect().width;
+                  indicator.style.width = isActive ? `${textWidth}px` : '0px';
+                  indicator.style.opacity = isActive ? '1' : '0';
+                }
+                
                 // Only scroll the tab into view if it's newly activated
                 if (isActive) {
                   scrollTabIntoView(link);
@@ -303,7 +359,7 @@ interface MenuCategory {
       }
     }
     
-    // Click handler for tab links - single responsibility: scroll to section
+    // Click handler for tab links
     tabLinks.forEach(link => {
       link.addEventListener('click', (e) => {
         e.preventDefault();
@@ -318,6 +374,16 @@ interface MenuCategory {
           
           if (wasActive !== willBeActive) {
             tab.setAttribute('data-active', willBeActive ? 'true' : 'false');
+            
+            // Update indicator width
+            const indicator = tab.querySelector('.tab-indicator');
+            const textElement = tab.querySelector('.tab-text');
+            
+            if (indicator && textElement) {
+              const textWidth = textElement.getBoundingClientRect().width;
+              indicator.style.width = willBeActive ? `${textWidth}px` : '0px';
+              indicator.style.opacity = willBeActive ? '1' : '0';
+            }
           }
         });
         
@@ -368,6 +434,7 @@ interface MenuCategory {
     
     // Also update on resize
     window.addEventListener('resize', throttle(() => {
+      updateIndicatorWidths();
       updateActiveTab();
     }, 100));
     

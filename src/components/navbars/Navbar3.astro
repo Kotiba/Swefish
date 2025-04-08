@@ -10,58 +10,47 @@ interface MenuCategory {
 }
 ---
 
-<header class="fixed top-0 left-0 right-0 z-20 bg-swefish-yellow px-4 py-3 flex items-center justify-center border-b">
+<header class="fixed top-0 left-0 right-0 z-20 bg-white px-4 py-3 flex items-center justify-start border-b">
   <BrandLogo class="h-8 w-auto" />
 </header>
 
 <!-- Menu navigation with tabs -->
 <nav class="fixed top-[52px] left-0 right-0 z-10 bg-white border-b">
-  <div class="relative flex h-14">
-    <!-- Menu button -->
-    <button 
-      id="menu-toggle" 
-      class="flex items-center justify-center w-14 h-full border-r border-gray-200 hover:bg-gray-50 focus:outline-none"
-      aria-expanded="false"
-      aria-controls="mobile-menu"
-    >
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="4" x2="20" y1="12" y2="12" />
-        <line x1="4" x2="20" y1="6" y2="6" />
-        <line x1="4" x2="20" y1="18" y2="18" />
-      </svg>
-    </button>
+  <div class="tab-bar-container">
+    <!-- Menu button - absolutely positioned to prevent any movement -->
+    <div class="hamburger-container">
+      <button id="hamburger-menu" class="p-3 transition-colors hover:text-black focus:outline-none">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="4" x2="20" y1="12" y2="12" />
+          <line x1="4" x2="20" y1="6" y2="6" />
+          <line x1="4" x2="20" y1="18" y2="18" />
+        </svg>
+      </button>
+    </div>
     
-    <!-- Horizontal tabs - visible on desktop and when mobile menu is closed -->
-    <div id="tabs-container" class="flex overflow-x-auto scrollbar-hide">
+    <!-- Scrollable tabs container - this is hidden when menu opens -->
+    <div class="tabs-container flex overflow-x-auto scrollbar-hide pb-2 relative transition-opacity duration-200">
       {categories.map((category: MenuCategory, index: number) => (
         <a 
           href={`#${category.id}`}
-          class={`flex-shrink-0 px-4 py-3 text-base font-medium whitespace-nowrap transition-colors relative ${
-            index === 0 ? 'text-black' : 'text-gray-500'
-          }`}
-          data-category-id={category.id}
+          class="tab-link flex-shrink-0 px-4 py-3 text-base font-medium whitespace-nowrap transition-all relative"
+          data-section-id={category.id}
         >
-          <span>{category.title}</span>
-          <div class={`absolute bottom-0 left-0 h-0.5 bg-black transition-all duration-300 ${
-            index === 0 ? 'w-full' : 'w-0'
-          }`}></div>
+          {category.title}
+          <span class="tab-indicator absolute bottom-0 left-0 w-full h-0.5 scale-x-0 transition-transform duration-300 bg-black"></span>
         </a>
       ))}
     </div>
   </div>
   
-  <!-- Mobile menu - hidden by default -->
-  <div 
-    id="mobile-menu" 
-    class="hidden bg-white border-t"
-    aria-hidden="true"
-  >
+  <!-- Vertical menu (hidden by default) - positioned directly UNDER the tab bar -->
+  <div id="vertical-menu" class="vertical-menu w-full bg-white shadow-md border-t">
     <div class="py-2 px-4">
       {categories.map((category: MenuCategory) => (
         <a 
           href={`#${category.id}`}
           class="block w-full text-left py-3 border-b border-gray-100 hover:bg-gray-50"
-          data-category-id={category.id}
+          data-section-id={category.id}
         >
           {category.title}
         </a>
@@ -82,139 +71,308 @@ interface MenuCategory {
     scrollbar-width: none;  /* Firefox */
   }
   
-  /* Smooth scrolling for the whole page */
+  /* Set active state for tab links */
+  .tab-link {
+    color: #6b7280; /* Default gray color */
+  }
+  
+  .tab-link[data-active="true"] {
+    color: black;
+    font-weight: 600;
+  }
+  
+  .tab-link[data-active="true"] .tab-indicator {
+    transform: scaleX(1);
+  }
+  
+  /* Active tab feedback */
+  .tab-link {
+    transition: color 0.2s ease, transform 0.1s ease;
+  }
+  
+  .tab-link:active {
+    transform: scale(0.96);
+  }
+  
+  /* Vertical menu animation */
+  .vertical-menu {
+    transform: translateY(-20px);
+    opacity: 0;
+    visibility: hidden;
+    transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), 
+                opacity 0.2s ease,
+                visibility 0s linear 0.3s;
+    height: 0;
+    overflow: hidden;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 30;
+  }
+  
+  .vertical-menu.open {
+    transform: translateY(0);
+    opacity: 1;
+    visibility: visible;
+    transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), 
+                opacity 0.2s ease,
+                visibility 0s linear 0s;
+    height: auto;
+  }
+  
+  /* Absolutely position the hamburger to prevent any movement */
+  .hamburger-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 56px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    border-right: 1px solid #e5e7eb; /* Add right border */
+  }
+  
+  /* Ensure tab bar maintains consistent height */
+  .tab-bar-container {
+    position: relative;
+    height: 56px; /* Fixed height to match tabs */
+    will-change: transform; /* Optimize for animation performance */
+  }
+  
+  /* Add padding to tabs container to make room for hamburger */
+  .tabs-container {
+    position: absolute;
+    left: 56px; /* Match hamburger container width */
+    right: 0;
+    padding-left: 0; /* Remove the previous padding */
+    overflow-x: auto;
+    
+    /* Basic scrolling behavior - no fancy effects that could cause glitches */
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    overscroll-behavior-x: contain; /* Prevents page refresh on horizontal overscroll */
+    will-change: scroll-position; /* Optimize scrolling performance */
+  }
+  
+  /* Fade indicator for scroll edges */
+  .tab-bar-container::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    width: 24px;
+    background: linear-gradient(to right, rgba(255,255,255,0), rgba(255,255,255,0.9));
+    pointer-events: none;
+    z-index: 5;
+  }
+  
+  /* Native smooth scrolling */
   :global(html) {
     scroll-behavior: smooth;
   }
   
-  /* Adjust scroll margin for sections to account for fixed header */
   :global(section[id]) {
-    scroll-margin-top: 112px; /* Adjust based on your header + nav height */
+    scroll-margin-top: 110px; /* Adjust based on header + nav height */
   }
 </style>
 
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    // Elements
-    const menuToggle = document.getElementById('menu-toggle');
-    const mobileMenu = document.getElementById('mobile-menu');
-    const tabsContainer = document.getElementById('tabs-container');
-    const categoryLinks = document.querySelectorAll('[data-category-id]');
+  // Simple script for handling navigation and scrollspy
+  document.addEventListener('DOMContentLoaded', () => {
+    const hamburgerBtn = document.getElementById('hamburger-menu');
+    const verticalMenu = document.getElementById('vertical-menu');
+    const tabsContainer = document.querySelector('.tabs-container');
+    const tabLinks = document.querySelectorAll('.tab-link');
+    const sections = Array.from(document.querySelectorAll('section[id]'));
+    let isVerticalMenuOpen = false;
+    let activeNavigation = false;
     
-    // State
-    let isMobileMenuOpen = false;
-    
-    // Toggle mobile menu
-    if (menuToggle && mobileMenu && tabsContainer) {
-      menuToggle.addEventListener('click', () => {
-        isMobileMenuOpen = !isMobileMenuOpen;
+    // Toggle vertical menu
+    function toggleVerticalMenu() {
+      isVerticalMenuOpen = !isVerticalMenuOpen;
+      
+      if (isVerticalMenuOpen) {
+        // Hide tabs container
+        tabsContainer?.classList.add('invisible', 'opacity-0');
         
-        // Update ARIA attributes
-        menuToggle.setAttribute('aria-expanded', isMobileMenuOpen.toString());
-        mobileMenu.setAttribute('aria-hidden', (!isMobileMenuOpen).toString());
+        // Show vertical menu
+        verticalMenu?.classList.add('open');
         
-        // Toggle visibility
-        if (isMobileMenuOpen) {
-          mobileMenu.classList.remove('hidden');
-          tabsContainer.classList.add('hidden');
-          menuToggle.classList.add('text-black');
-        } else {
-          mobileMenu.classList.add('hidden');
-          tabsContainer.classList.remove('hidden');
-          menuToggle.classList.remove('text-black');
-        }
-      });
+        // Highlight hamburger button
+        hamburgerBtn?.classList.add('text-black');
+      } else {
+        // Show tabs container
+        tabsContainer?.classList.remove('invisible', 'opacity-0');
+        
+        // Hide vertical menu
+        verticalMenu?.classList.remove('open');
+        
+        // Reset hamburger button
+        hamburgerBtn?.classList.remove('text-black');
+      }
     }
     
-    // Handle category link clicks
-    categoryLinks.forEach(link => {
-      link.addEventListener('click', (e) => {
-        // Close mobile menu if open
-        if (isMobileMenuOpen && menuToggle && mobileMenu && tabsContainer) {
-          isMobileMenuOpen = false;
-          menuToggle.setAttribute('aria-expanded', 'false');
-          mobileMenu.setAttribute('aria-hidden', 'true');
-          mobileMenu.classList.add('hidden');
-          tabsContainer.classList.remove('hidden');
-          menuToggle.classList.remove('text-black');
-        }
-        
-        // Update active tab
-        const categoryId = link.getAttribute('data-category-id');
-        if (categoryId) {
-          updateActiveTab(categoryId);
+    // Hamburger menu click event
+    hamburgerBtn?.addEventListener('click', toggleVerticalMenu);
+    
+    // Close vertical menu when clicking a link
+    verticalMenu?.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        if (isVerticalMenuOpen) {
+          toggleVerticalMenu();
         }
       });
     });
     
-    // Update active tab based on scroll position
-    function updateActiveTab(categoryId: string): void {
-      // Remove active state from all tabs
-      categoryLinks.forEach(link => {
-        link.classList.remove('text-black');
-        link.classList.add('text-gray-500');
-        const indicator = link.querySelector('div');
-        if (indicator) {
-          indicator.classList.remove('w-full');
-          indicator.classList.add('w-0');
+    // Scroll tab into view when it becomes active
+    function scrollTabIntoView(tabElement: Element): void {
+      if (!tabsContainer) return;
+      
+      const containerWidth = tabsContainer.clientWidth;
+      const tabRect = tabElement.getBoundingClientRect();
+      const containerRect = tabsContainer.getBoundingClientRect();
+      
+      // Only scroll if tab is not fully visible
+      if (tabRect.left < containerRect.left || tabRect.right > containerRect.right) {
+        // Calculate position to put tab in the center
+        const leftPosition = tabElement.getBoundingClientRect().left + 
+                             tabsContainer.scrollLeft - 
+                             containerRect.left -
+                             (containerWidth / 2) + 
+                             (tabRect.width / 2);
+        
+        // Use requestAnimationFrame for smoother animation
+        requestAnimationFrame(() => {
+          tabsContainer.scrollTo({
+            left: leftPosition,
+            behavior: 'smooth'
+          });
+        });
+      }
+    }
+    
+    // Find the active tab by visible section
+    function updateActiveTab(): void {
+      if (activeNavigation) return; // Skip during active navigation
+      
+      // Find the section that's most visible in the viewport
+      let mostVisibleSection: Element | null = null;
+      let maxVisibility = 0;
+      
+      const navbarHeight = 110; // Approximate header + nav height
+      
+      sections.forEach(section => {
+        const rect = section.getBoundingClientRect();
+        // Calculate how much of the section is visible
+        const visibleHeight = Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, navbarHeight);
+        const visibleRatio = visibleHeight / rect.height;
+        
+        if (visibleRatio > maxVisibility && visibleRatio > 0.1) { // At least 10% visible
+          maxVisibility = visibleRatio;
+          mostVisibleSection = section;
         }
       });
       
-      // Add active state to current tab
-      const activeLink = document.querySelector(`[data-category-id="${categoryId}"]`);
-      if (activeLink) {
-        activeLink.classList.remove('text-gray-500');
-        activeLink.classList.add('text-black');
-        const indicator = activeLink.querySelector('div');
-        if (indicator) {
-          indicator.classList.remove('w-0');
-          indicator.classList.add('w-full');
+      if (mostVisibleSection) {
+        // Type assertion to tell TypeScript this is an HTMLElement with an id
+        const sectionElement = mostVisibleSection as HTMLElement;
+        const sectionId = sectionElement.id;
+        
+        if (sectionId) {
+          // Find the active tab link
+          const activeTab = document.querySelector(`.tab-link[data-section-id="${sectionId}"]`);
+          
+          if (activeTab) {
+            // Update active states
+            tabLinks.forEach(link => {
+              const isActive = link === activeTab;
+              if (isActive !== (link.getAttribute('data-active') === 'true')) {
+                link.setAttribute('data-active', isActive ? 'true' : 'false');
+                
+                // Only scroll the tab into view if it's newly activated
+                if (isActive) {
+                  scrollTabIntoView(link);
+                }
+              }
+            });
+          }
         }
       }
     }
     
-    // Use Intersection Observer for scrollspy
-    const header = document.querySelector('header');
-    const nav = document.querySelector('nav');
-    
-    if (header && nav) {
-      const navbarHeight = header.offsetHeight + nav.offsetHeight;
-      
-      const observerOptions = {
-        root: null,
-        rootMargin: `-${navbarHeight}px 0px -50% 0px`,
-        threshold: 0.1
-      };
-      
-      const observerCallback = (entries: IntersectionObserverEntry[]): void => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            const sectionId = entry.target.id;
-            updateActiveTab(sectionId);
+    // Click handler for tab links - single responsibility: scroll to section
+    tabLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        
+        const sectionId = link.getAttribute('data-section-id');
+        if (!sectionId) return;
+        
+        // Mark active link immediately for better UX
+        tabLinks.forEach(tab => {
+          const wasActive = tab.getAttribute('data-active') === 'true';
+          const willBeActive = tab === link;
+          
+          if (wasActive !== willBeActive) {
+            tab.setAttribute('data-active', willBeActive ? 'true' : 'false');
           }
         });
-      };
-      
-      const observer = new IntersectionObserver(observerCallback, observerOptions);
-      
-      // Observe all sections
-      document.querySelectorAll('section[id]').forEach(section => {
-        observer.observe(section);
-      });
-      
-      // Initialize with the first visible section
-      setTimeout(() => {
-        const sections = Array.from(document.querySelectorAll('section[id]'));
-        const visibleSection = sections.find(section => {
-          const rect = section.getBoundingClientRect();
-          return rect.top < window.innerHeight * 0.5 && rect.bottom > navbarHeight;
-        });
         
-        if (visibleSection) {
-          updateActiveTab(visibleSection.id);
+        // Get section and scroll to it
+        const targetSection = document.getElementById(sectionId);
+        if (targetSection) {
+          // Visual feedback on click
+          link.classList.add('clicked');
+          setTimeout(() => link.classList.remove('clicked'), 200);
+          
+          // Set navigation lock
+          activeNavigation = true;
+          
+          // Simple scroll to target section
+          const navbarHeight = 110;
+          const targetPosition = targetSection.getBoundingClientRect().top + window.scrollY - navbarHeight;
+          
+          window.scrollTo({
+            top: targetPosition,
+            behavior: 'smooth'
+          });
+          
+          // Release navigation lock after animation completes
+          setTimeout(() => {
+            activeNavigation = false;
+            // Update active tab after scrolling is complete
+            updateActiveTab();
+          }, 500); // Adjust based on scroll animation duration
         }
-      }, 100);
+      });
+    });
+    
+    // Throttle function to limit execution frequency
+    function throttle<T extends (...args: any[]) => any>(func: T, limit: number): (...args: Parameters<T>) => void {
+      let inThrottle: boolean | undefined;
+      return function(this: any, ...args: Parameters<T>): void {
+        const context = this;
+        if (!inThrottle) {
+          func.apply(context, args);
+          inThrottle = true;
+          setTimeout(() => inThrottle = false, limit);
+        }
+      };
     }
+    
+    // Use throttled scroll event for updating active tab
+    window.addEventListener('scroll', throttle(updateActiveTab, 100));
+    
+    // Also update on resize
+    window.addEventListener('resize', throttle(() => {
+      updateActiveTab();
+    }, 100));
+    
+    // Initial call to set active tab
+    updateActiveTab();
   });
 </script>
 
