@@ -1,0 +1,128 @@
+---
+import Tag from "../Menu/Tag.astro";
+import { Image } from "astro:assets";
+import { getImage } from "../../utils/imageMap";
+import type { WeightOption } from "../../utils/types";
+
+// Import all product images
+import srirachaTahini from "../../images/products/Sriracha Tahini.jpg";
+import sweetChili from "../../images/products/Sweet Chili.jpg";
+import specialBread from "../../images/products/Swefish Special Bread.jpg";
+import specialVeggies from "../../images/products/Swefish Special Vegetables.jpg";
+import fishAndChips from "../../images/products/The Fish & Chips.jpg";
+import tartarSauce from "../../images/products/Capers Tartar Sauce.jpg";
+import cheddarSauce from "../../images/products/Cheddar Sauce.jpg";
+import coleslaw from "../../images/products/Coleslaw.jpg";
+import friedFish from "../../images/products/Fried Fish Fillet.jpg";
+import fries from "../../images/products/Fries Packet.jpg";
+import greenSalad from "../../images/products/Green Salad WIth Mustard Vinaigrette Dressing.jpg";
+import grilledLemonGarlic from "../../images/products/Grilled With Lemon Garlic Butter Sauce.jpg";
+import grilledOliveOil from "../../images/products/Grilled With Olive Oil & Lemon.jpg";
+import honeyMustard from "../../images/products/Honey Mustard.jpg";
+import kidsMeal from "../../images/products/Kids Meal.jpg";
+import lemonGarlicSauce from "../../images/products/Lemon Garlic Butter Sauce Large.jpg";
+import mineralWater from "../../images/products/Mineral Water.jpg";
+import mirinda from "../../images/products/Mirinda Orange.jpg";
+import pepsiDiet from "../../images/products/Pepsi Diet.jpg";
+import pepsi from "../../images/products/Pepsi.jpg";
+import roquefortSauce from "../../images/products/Roquefort Sauce.jpg";
+import shrimpBisque from "../../images/products/Shrimp Bisque Soup.jpg";
+import specialRice from "../../images/products/SWEFISH Special Rice Large.jpg";
+import sevenUp from "../../images/products/7UP.jpg";
+import barbecueSauce from "../../images/products/Barbecue Sauce.jpg";
+import birell from "../../images/products/Birell Malt Drink Can.jpg";
+
+const { 
+  title, 
+  description, 
+  price, 
+  image, 
+  isTopRated = false, 
+  fullWidth = false,
+  weightOptions = [] as WeightOption[]
+} = Astro.props;
+
+// Format price to have 2 decimal places
+const formattedPrice = price.toFixed(2);
+
+// Check if we have weight-based pricing
+const hasWeightOptions = weightOptions.length > 0;
+
+// Get the actual image from the image reference
+const imageSrc = getImage(image);
+---
+
+{fullWidth ? (
+  <div class="col-span-2">
+    <div class="bg-white rounded-xl overflow-hidden  border border-gray-200 shadow-sm hover:bg-[#FAFAFA]">
+      <div class="flex gap-4 p-4">
+        <div class="w-28 h-28 sm:w-36 sm:h-36 md:w-56 md:h-56 bg-gray-200 flex-shrink-0 rounded-lg overflow-hidden">
+          <Image
+            src={imageSrc}
+            alt={title}
+            class="w-full h-full object-cover"
+            draggable={false}
+            loading="eager"
+            format="avif"
+          />
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-start gap-2 flex-wrap">
+            <h3 class="text-base sm:text-lg font-medium text-gray-900 break-words">{title}</h3>
+            {isTopRated && <Tag text="Top rated" />}
+          </div>
+          <p class="text-sm sm:text-base text-gray-600 mt-1 line-clamp-2">{description}</p>
+          
+          {hasWeightOptions ? (
+            <div class="mt-3 flex flex-wrap gap-2">
+              {weightOptions.map((option: WeightOption) => (
+                <div class="px-3 py-1 bg-gray-50 rounded-full text-xs sm:text-sm">
+                  <span class="font-medium text-gray-800">{option.weight}</span>
+                  <span class="mx-1 text-gray-400">•</span>
+                  <span class="text-gray-900">EGP {option.price.toFixed(2)}</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p class="text-sm font-medium text-gray-900 mt-2">EGP {formattedPrice}</p>
+          )}
+        </div>
+      </div>
+    </div>
+  </div>
+) : (
+  <div class="bg-white rounded-xl overflow-hidden  border border-gray-200 shadow-sm hover:bg-[#FAFAFA]">
+    <div class="relative h-36 bg-gray-200">
+      <Image
+        src={imageSrc}
+        alt={title}
+        class="w-full h-full object-cover"
+        draggable={false}
+        loading="eager"
+        format="avif"
+      />
+      {isTopRated && (
+        <div class="absolute bottom-2 left-2">
+          <Tag text="Top rated" variant="white" />
+        </div>
+      )}
+    </div>
+    <div class="p-3">
+      <h3 class="font-medium text-sm">{title}</h3>
+      
+      {hasWeightOptions ? (
+        <div class="mt-2 flex flex-wrap gap-1">
+          {weightOptions.map((option: WeightOption) => (
+            <div class="px-2 py-0.5 bg-gray-50 rounded-full text-xs mt-1">
+              <span class="font-medium text-gray-800">{option.weight}</span>
+              <span class="mx-0.5 text-gray-400">•</span>
+              <span class="text-gray-900">EGP {option.price.toFixed(2)}</span>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p class="text-sm font-medium text-gray-900 mt-1">EGP {formattedPrice}</p>
+      )}
+    </div>
+  </div>
+)}

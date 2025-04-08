@@ -1,0 +1,26 @@
+---
+import MainLayout from "../layouts/MainLayout.astro";
+import Navbar from "../components/navbars/Navbar3.astro";
+import MenuItem from "../components/MenuItems/MenuItem3.astro";
+import menuData from "../data/menu.json";
+import type { MenuData, MenuItem as MenuItemType } from "../utils/types";
+
+const { menuCategories } = menuData as MenuData;
+---
+
+<MainLayout title="Test3">
+  <Navbar categories={menuCategories} />
+  
+  <main class="pt-32 pb-20 container mx-auto px-4 md:px-8 max-w-6xl">
+    {menuCategories.map((category) => (
+      <section id={category.id} class="mb-12 scroll-mt-24">
+        <h2 class="text-2xl font-bold mb-6">{category.title}</h2>
+        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {category.items.map((item: MenuItemType) => (
+            <MenuItem {...item} />
+          ))}
+        </div>
+      </section>
+    ))}
+  </main>
+</MainLayout>
