@@ -287,11 +287,11 @@ interface MenuCategory {
         if (textElement && indicator) {
           // Set indicator width based on text width
           const textWidth = textElement.getBoundingClientRect().width;
-          indicator.style.width = `${textWidth}px`;
+          (indicator as HTMLElement).style.width = `${textWidth}px`;
           
           // Initially hide indicator for non-active tabs
           if (link.getAttribute('data-active') !== 'true') {
-            indicator.style.width = '0px';
+            (indicator as HTMLElement).style.width = '0px';
           }
         }
       });
@@ -344,8 +344,8 @@ interface MenuCategory {
                 
                 if (indicator && textElement) {
                   const textWidth = textElement.getBoundingClientRect().width;
-                  indicator.style.width = isActive ? `${textWidth}px` : '0px';
-                  indicator.style.opacity = isActive ? '1' : '0';
+                  (indicator as HTMLElement).style.width = isActive ? `${textWidth}px` : '0px';
+                  (indicator as HTMLElement).style.opacity = isActive ? '1' : '0';
                 }
                 
                 // Only scroll the tab into view if it's newly activated
@@ -381,8 +381,8 @@ interface MenuCategory {
             
             if (indicator && textElement) {
               const textWidth = textElement.getBoundingClientRect().width;
-              indicator.style.width = willBeActive ? `${textWidth}px` : '0px';
-              indicator.style.opacity = willBeActive ? '1' : '0';
+              (indicator as HTMLElement).style.width = willBeActive ? `${textWidth}px` : '0px';
+              (indicator as HTMLElement).style.opacity = willBeActive ? '1' : '0';
             }
           }
         });
