@@ -138,6 +138,33 @@ interface MenuCategory {
     right: 0;
     padding-left: 0; /* Remove the previous padding */
     overflow-x: auto;
+    
+    /* Mobile scroll optimizations */
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    scroll-snap-type: x proximity; /* Encourages stopping on tab boundaries */
+    overscroll-behavior-x: contain; /* Prevents page refresh on horizontal overscroll */
+    scroll-behavior: smooth; /* Smooth scrolling on tab changes */
+  }
+  
+  /* Add scroll snapping to tab links */
+  .tab-link {
+    scroll-snap-align: start; /* Align tabs to the start when scrolling */
+    position: relative;
+    transition: color 0.3s ease;
+  }
+  
+  /* Fade indicators for scroll affordance */
+  .tab-bar-container::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    width: 30px;
+    background: linear-gradient(to right, rgba(255,255,255,0), rgba(255,255,255,1));
+    pointer-events: none;
+    opacity: 0.7;
+    z-index: 5;
   }
 
   /* Native smooth scrolling */
@@ -274,8 +301,11 @@ interface MenuCategory {
         // Calculate center position
         const scrollLeft = tabRect.left + (tabRect.width / 2) - containerRect.left - (containerRect.width / 2);
         
-        // Use programmatic scroll without smooth behavior to avoid animation conflicts
-        container.scrollLeft += scrollLeft;
+        // Use smooth scrolling behavior for better mobile experience
+        container.scrollTo({
+          left: container.scrollLeft + scrollLeft,
+          behavior: 'smooth'
+        });
       }
     }
     
@@ -312,6 +342,46 @@ interface MenuCategory {
         }
       }
     }, 100);
+
+    // Add touch events for better mobile scrolling experience
+    if (tabsContainer) {
+      let isDragging = false;
+      let startX = 0;
+      let scrollLeft = 0;
+      
+      // Helper function to determine if we're on a touch device
+      const isTouchDevice = () => {
+        return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+      };
+      
+      if (isTouchDevice()) {
+        // For touch devices - add drag momentum
+        tabsContainer.addEventListener('touchstart', function(e) {
+          const touchEvent = e as unknown as { touches: { pageX: number }[] };
+          isDragging = true;
+          const container = tabsContainer as HTMLElement;
+          startX = touchEvent.touches[0].pageX - container.offsetLeft;
+          scrollLeft = container.scrollLeft;
+          
+          // Add class for visual feedback
+          container.classList.add('grabbing');
+        }, { passive: true });
+        
+        tabsContainer.addEventListener('touchend', function() {
+          isDragging = false;
+          (tabsContainer as HTMLElement).classList.remove('grabbing');
+        }, { passive: true });
+        
+        tabsContainer.addEventListener('touchmove', function(e) {
+          if (!isDragging) return;
+          const touchEvent = e as unknown as { touches: { pageX: number }[] };
+          const container = tabsContainer as HTMLElement;
+          const x = touchEvent.touches[0].pageX - container.offsetLeft;
+          const walk = (x - startX) * 1.5; // Scroll speed multiplier
+          container.scrollLeft = scrollLeft - walk;
+        }, { passive: true });
+      }
+    }
   });
 </script>
 
