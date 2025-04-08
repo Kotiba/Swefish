@@ -141,14 +141,14 @@ interface MenuCategory {
     
     /* Mobile scroll optimizations */
     -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
-    scroll-snap-type: x proximity; /* Encourages stopping on tab boundaries */
+    scroll-snap-type: x mandatory; /* Force snapping to tab boundaries */
     overscroll-behavior-x: contain; /* Prevents page refresh on horizontal overscroll */
     scroll-behavior: smooth; /* Smooth scrolling on tab changes */
   }
   
   /* Add scroll snapping to tab links */
   .tab-link {
-    scroll-snap-align: start; /* Align tabs to the start when scrolling */
+    scroll-snap-align: center; /* Align tabs to the center when scrolling */
     position: relative;
     transition: color 0.3s ease;
   }
@@ -255,6 +255,9 @@ interface MenuCategory {
             top: targetPosition,
             behavior: 'smooth'
           });
+          
+          // Center the clicked tab after navigation
+          centerTabInView(link as Element);
         }
       });
     });
@@ -288,7 +291,7 @@ interface MenuCategory {
       });
     };
     
-    // Center tab in view without triggering scroll side effects
+    // Center tab in view using native smooth scroll
     function centerTabInView(tabElement: Element): void {
       const container = tabElement.closest('.tabs-container');
       if (!container) return;
@@ -296,17 +299,14 @@ interface MenuCategory {
       const tabRect = tabElement.getBoundingClientRect();
       const containerRect = container.getBoundingClientRect();
       
-      // Only scroll if tab is not fully visible
-      if (tabRect.left < containerRect.left || tabRect.right > containerRect.right) {
-        // Calculate center position
-        const scrollLeft = tabRect.left + (tabRect.width / 2) - containerRect.left - (containerRect.width / 2);
-        
-        // Use smooth scrolling behavior for better mobile experience
-        container.scrollTo({
-          left: container.scrollLeft + scrollLeft,
-          behavior: 'smooth'
-        });
-      }
+      // Calculate the scroll position to center the tab
+      const scrollLeft = tabRect.left + container.scrollLeft - containerRect.left - (containerRect.width / 2) + (tabRect.width / 2);
+      
+      // Let the container's `scroll-behavior: smooth` handle the animation
+      container.scrollTo({
+        left: scrollLeft,
+        // behavior: 'smooth' // Removed - rely on CSS
+      });
     }
     
     // Create and start the observer
@@ -326,62 +326,24 @@ interface MenuCategory {
       });
       
       if (currentSection) {
-        tabLinks.forEach(link => {
-          const isActive = link.getAttribute('data-section-id') === currentSection.id;
-          link.setAttribute('data-active', isActive ? 'true' : 'false');
-          if (isActive) {
-            const activeTab = link as Element;
-            centerTabInView(activeTab);
-          }
-        });
+        const activeTab = document.querySelector(`.tab-link[data-section-id="${currentSection.id}"]`);
+        if (activeTab) {
+          tabLinks.forEach(link => {
+            link.setAttribute('data-active', link === activeTab ? 'true' : 'false');
+          });
+          centerTabInView(activeTab);
+        }
       } else if (sections.length > 0) {
         // If no section is visible, highlight the first one
         const firstTab = document.querySelector(`.tab-link[data-section-id="${sections[0].id}"]`);
         if (firstTab) {
           firstTab.setAttribute('data-active', 'true');
+          centerTabInView(firstTab);
         }
       }
     }, 100);
-
-    // Add touch events for better mobile scrolling experience
-    if (tabsContainer) {
-      let isDragging = false;
-      let startX = 0;
-      let scrollLeft = 0;
-      
-      // Helper function to determine if we're on a touch device
-      const isTouchDevice = () => {
-        return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-      };
-      
-      if (isTouchDevice()) {
-        // For touch devices - add drag momentum
-        tabsContainer.addEventListener('touchstart', function(e) {
-          const touchEvent = e as unknown as { touches: { pageX: number }[] };
-          isDragging = true;
-          const container = tabsContainer as HTMLElement;
-          startX = touchEvent.touches[0].pageX - container.offsetLeft;
-          scrollLeft = container.scrollLeft;
-          
-          // Add class for visual feedback
-          container.classList.add('grabbing');
-        }, { passive: true });
-        
-        tabsContainer.addEventListener('touchend', function() {
-          isDragging = false;
-          (tabsContainer as HTMLElement).classList.remove('grabbing');
-        }, { passive: true });
-        
-        tabsContainer.addEventListener('touchmove', function(e) {
-          if (!isDragging) return;
-          const touchEvent = e as unknown as { touches: { pageX: number }[] };
-          const container = tabsContainer as HTMLElement;
-          const x = touchEvent.touches[0].pageX - container.offsetLeft;
-          const walk = (x - startX) * 1.5; // Scroll speed multiplier
-          container.scrollLeft = scrollLeft - walk;
-        }, { passive: true });
-      }
-    }
+    
+    // No custom touch handling needed - relying on CSS
   });
 </script>
 
