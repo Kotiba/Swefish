@@ -130,10 +130,12 @@
   }
   /* Apply the Inter font to the body */
   body {
-    font-family: 'Inter', sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont,'Inter', sans-serif;
+    
   }
   html {
     scroll-behavior: smooth;
   }
   
 }
+
