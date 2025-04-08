@@ -139,34 +139,11 @@ interface MenuCategory {
     padding-left: 0; /* Remove the previous padding */
     overflow-x: auto;
     
-    /* Mobile scroll optimizations */
+    /* Basic scrolling behavior - no fancy effects that could cause glitches */
     -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
-    scroll-snap-type: x mandatory; /* Force snapping to tab boundaries */
     overscroll-behavior-x: contain; /* Prevents page refresh on horizontal overscroll */
-    scroll-behavior: smooth; /* Smooth scrolling on tab changes */
   }
   
-  /* Add scroll snapping to tab links */
-  .tab-link {
-    scroll-snap-align: center; /* Align tabs to the center when scrolling */
-    position: relative;
-    transition: color 0.3s ease;
-  }
-  
-  /* Fade indicators for scroll affordance */
-  .tab-bar-container::after {
-    content: '';
-    position: absolute;
-    right: 0;
-    top: 0;
-    height: 100%;
-    width: 30px;
-    background: linear-gradient(to right, rgba(255,255,255,0), rgba(255,255,255,1));
-    pointer-events: none;
-    opacity: 0.7;
-    z-index: 5;
-  }
-
   /* Native smooth scrolling */
   :global(html) {
     scroll-behavior: smooth;
@@ -186,6 +163,7 @@ interface MenuCategory {
     const tabLinks = document.querySelectorAll('.tab-link');
     const sections = Array.from(document.querySelectorAll('section[id]'));
     let isVerticalMenuOpen = false;
+    let activeNavigation = false;
     
     // Toggle vertical menu
     function toggleVerticalMenu() {
@@ -224,31 +202,58 @@ interface MenuCategory {
       });
     });
     
-    // Direct click handler for tab links to prevent scroll issues
+    // Find the active tab by visible section
+    function updateActiveTab(): void {
+      if (activeNavigation) return; // Skip during active navigation
+      
+      // Find the section that's most visible in the viewport
+      let mostVisibleSection: HTMLElement | null = null;
+      let maxVisibility = 0;
+      
+      const navbarHeight = 110; // Approximate header + nav height
+      
+      sections.forEach(section => {
+        const rect = section.getBoundingClientRect();
+        // Calculate how much of the section is visible
+        const visibleHeight = Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, navbarHeight);
+        const visibleRatio = visibleHeight / rect.height;
+        
+        if (visibleRatio > maxVisibility && visibleRatio > 0.1) { // At least 10% visible
+          maxVisibility = visibleRatio;
+          mostVisibleSection = section as HTMLElement;
+        }
+      });
+      
+      if (mostVisibleSection && mostVisibleSection.id) {
+        const sectionId = mostVisibleSection.id;
+        tabLinks.forEach(link => {
+          const isActive = link.getAttribute('data-section-id') === sectionId;
+          link.setAttribute('data-active', isActive ? 'true' : 'false');
+        });
+      }
+    }
+    
+    // Click handler for tab links - single responsibility: scroll to section
     tabLinks.forEach(link => {
       link.addEventListener('click', (e) => {
         e.preventDefault();
         
-        // Get the target section
         const sectionId = link.getAttribute('data-section-id');
         if (!sectionId) return;
         
-        // Immediately update active tab state to prevent flicker
+        // Mark active link immediately for better UX
         tabLinks.forEach(tab => {
           tab.setAttribute('data-active', tab === link ? 'true' : 'false');
         });
         
-        // Get the target section element
+        // Get section and scroll to it
         const targetSection = document.getElementById(sectionId);
         if (targetSection) {
-          // Stop any ongoing scroll animations
-          window.scrollTo({
-            top: window.scrollY,
-            behavior: 'auto'
-          });
+          // Set navigation lock
+          activeNavigation = true;
           
-          // Scroll to section with fixed offset for header
-          const navbarHeight = 110; // Adjust based on your header height
+          // Simple scroll to target section
+          const navbarHeight = 110;
           const targetPosition = targetSection.getBoundingClientRect().top + window.scrollY - navbarHeight;
           
           window.scrollTo({
@@ -256,94 +261,32 @@ interface MenuCategory {
             behavior: 'smooth'
           });
           
-          // Center the clicked tab after navigation
-          centerTabInView(link as Element);
+          // Release navigation lock after animation completes
+          setTimeout(() => {
+            activeNavigation = false;
+          }, 500); // Adjust based on scroll animation duration
         }
       });
     });
     
-    // Simple scrollspy with Intersection Observer
-    const navbarHeight = 110; // Approximate header + nav height
-    
-    const observerOptions = {
-      root: null,
-      rootMargin: `-${navbarHeight}px 0px -50% 0px`,
-      threshold: 0.1
-    };
-    
-    // Separate observer for updating tab visibility without affecting scrolling
-    const tabUpdateCallback = (entries: IntersectionObserverEntry[]) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const sectionId = entry.target.id;
-          
-          // Only update tab state and tab scroll position
-          const activeTab = document.querySelector(`.tab-link[data-section-id="${sectionId}"]`);
-          if (activeTab) {
-            tabLinks.forEach(link => {
-              link.setAttribute('data-active', link === activeTab ? 'true' : 'false');
-            });
-            
-            // Center the active tab in view without triggering scroll events
-            centerTabInView(activeTab);
-          }
+    // Throttle function to limit execution frequency
+    function throttle<T extends (...args: any[]) => any>(func: T, limit: number): (...args: Parameters<T>) => void {
+      let inThrottle: boolean | undefined;
+      return function(this: any, ...args: Parameters<T>): void {
+        const context = this;
+        if (!inThrottle) {
+          func.apply(context, args);
+          inThrottle = true;
+          setTimeout(() => inThrottle = false, limit);
         }
-      });
-    };
-    
-    // Center tab in view using native smooth scroll
-    function centerTabInView(tabElement: Element): void {
-      const container = tabElement.closest('.tabs-container');
-      if (!container) return;
-      
-      const tabRect = tabElement.getBoundingClientRect();
-      const containerRect = container.getBoundingClientRect();
-      
-      // Calculate the scroll position to center the tab
-      const scrollLeft = tabRect.left + container.scrollLeft - containerRect.left - (containerRect.width / 2) + (tabRect.width / 2);
-      
-      // Let the container's `scroll-behavior: smooth` handle the animation
-      container.scrollTo({
-        left: scrollLeft,
-        // behavior: 'smooth' // Removed - rely on CSS
-      });
+      };
     }
     
-    // Create and start the observer
-    const observer = new IntersectionObserver(tabUpdateCallback, observerOptions);
+    // Use throttled scroll event for updating active tab
+    window.addEventListener('scroll', throttle(updateActiveTab, 100));
     
-    // Start observing each section
-    sections.forEach(section => {
-      observer.observe(section);
-    });
-    
-    // Initialize by highlighting visible section on page load
-    setTimeout(() => {
-      // Find the section that's most visible
-      const currentSection = sections.find(section => {
-        const rect = section.getBoundingClientRect();
-        return rect.top < window.innerHeight * 0.5 && rect.bottom > navbarHeight;
-      });
-      
-      if (currentSection) {
-        const activeTab = document.querySelector(`.tab-link[data-section-id="${currentSection.id}"]`);
-        if (activeTab) {
-          tabLinks.forEach(link => {
-            link.setAttribute('data-active', link === activeTab ? 'true' : 'false');
-          });
-          centerTabInView(activeTab);
-        }
-      } else if (sections.length > 0) {
-        // If no section is visible, highlight the first one
-        const firstTab = document.querySelector(`.tab-link[data-section-id="${sections[0].id}"]`);
-        if (firstTab) {
-          firstTab.setAttribute('data-active', 'true');
-          centerTabInView(firstTab);
-        }
-      }
-    }, 100);
-    
-    // No custom touch handling needed - relying on CSS
+    // Initial call to set active tab
+    updateActiveTab();
   });
 </script>
 
