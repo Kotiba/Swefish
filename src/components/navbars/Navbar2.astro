@@ -10,7 +10,7 @@ interface MenuCategory {
 }
 ---
 
-<header class="fixed top-0 left-0 right-0 z-20 bg-swefish-yellow px-4 py-3 flex items-center justify-center border-b">
+<header class="fixed top-0 left-0 right-0 z-20 bg-white px-4 py-3 flex items-center justify-start border-b">
   <BrandLogo class="h-8 w-auto" />
 </header>
 
@@ -31,17 +31,14 @@ interface MenuCategory {
     <!-- Scrollable tabs container - this is hidden when menu opens -->
     <div class="tabs-container flex overflow-x-auto scrollbar-hide pb-2 relative transition-opacity duration-200">
       {categories.map((category: MenuCategory, index: number) => (
-        <button 
-          data-tab={category.id} 
-          class={`flex-shrink-0 px-4 py-3 text-base font-medium whitespace-nowrap transition-colors relative ${
-            index === 0 ? 'text-black' : 'text-gray-500'
-          }`}
+        <a 
+          href={`#${category.id}`}
+          class="tab-link flex-shrink-0 px-4 py-3 text-base font-medium whitespace-nowrap transition-colors relative"
+          data-section-id={category.id}
         >
-          <span class="tab-text">{category.title}</span>
-          <div class={`tab-indicator absolute bottom-0 h-0.5 bg-black ${
-            index === 0 ? '' : 'opacity-0'
-          }`}></div>
-        </button>
+          {category.title}
+          <span class="tab-indicator absolute bottom-0 left-0 w-full h-0.5 scale-x-0 transition-transform duration-300 bg-black"></span>
+        </a>
       ))}
     </div>
   </div>
@@ -50,14 +47,13 @@ interface MenuCategory {
   <div id="vertical-menu" class="vertical-menu w-full bg-white shadow-md border-t">
     <div class="py-2 px-4">
       {categories.map((category: MenuCategory) => (
-        <button 
-          data-vertical-tab={category.id} 
-          class={`block w-full text-left py-3 border-b border-gray-100 ${
-            category.id === categories[0].id ? 'font-medium' : ''
-          }`}
+        <a 
+          href={`#${category.id}`}
+          class="block w-full text-left py-3 border-b border-gray-100 hover:bg-gray-50"
+          data-section-id={category.id}
         >
           {category.title}
-        </button>
+        </a>
       ))}
     </div>
   </div>
@@ -75,12 +71,17 @@ interface MenuCategory {
     scrollbar-width: none;  /* Firefox */
   }
   
-  /* Active tab indicator animation */
-  .tab-indicator {
-    transition: transform 0.3s ease, width 0.3s ease, left 0.3s ease;
-    /* Remove the left: 0 and w-full to make it match only text width */
-    left: 0;
-    width: 100%;
+  /* Set active state for tab links */
+  .tab-link {
+    color: #6b7280; /* Default gray color */
+  }
+  
+  .tab-link[data-active="true"] {
+    color: black;
+  }
+  
+  .tab-link[data-active="true"] .tab-indicator {
+    transform: scaleX(1);
   }
   
   /* Vertical menu animation */
@@ -139,102 +140,25 @@ interface MenuCategory {
     overflow-x: auto;
   }
 
-  /* Simple smooth scrolling without snapping */
+  /* Native smooth scrolling */
   :global(html) {
     scroll-behavior: smooth;
   }
   
   :global(section[id]) {
-    scroll-margin-top: 112px; /* Adjust based on your header + nav height */
+    scroll-margin-top: 110px; /* Adjust based on header + nav height */
   }
 </style>
 
-<!-- Use client-side script to avoid TypeScript errors -->
-<script is:inline>
-  document.addEventListener('DOMContentLoaded', function() {
-    // Get all tab buttons
-    const tabButtons = document.querySelectorAll('[data-tab]');
-    const hamburgerButton = document.getElementById('hamburger-menu');
+<script>
+  // Simple script for handling navigation and scrollspy
+  document.addEventListener('DOMContentLoaded', () => {
+    const hamburgerBtn = document.getElementById('hamburger-menu');
     const verticalMenu = document.getElementById('vertical-menu');
     const tabsContainer = document.querySelector('.tabs-container');
+    const tabLinks = document.querySelectorAll('.tab-link');
+    const sections = Array.from(document.querySelectorAll('section[id]'));
     let isVerticalMenuOpen = false;
-    
-    if (!hamburgerButton || !verticalMenu || !tabsContainer) return;
-    
-    // Function to handle tab selection
-    function selectTab(tabElement) {
-      // Remove active class from all tabs
-      tabButtons.forEach(btn => {
-        btn.classList.remove('text-black');
-        btn.classList.add('text-gray-500');
-        const indicator = btn.querySelector('.tab-indicator');
-        if (indicator) indicator.classList.add('opacity-0');
-      });
-      
-      // Add active class to clicked tab
-      tabElement.classList.remove('text-gray-500');
-      tabElement.classList.add('text-black');
-      const indicator = tabElement.querySelector('.tab-indicator');
-      if (indicator) indicator.classList.remove('opacity-0');
-      
-      // Update indicator width to match text width
-      updateTabIndicator(tabElement);
-      
-      // Scroll the tab into view (centered)
-      const scrollLeft = tabElement.offsetLeft - (tabsContainer.clientWidth / 2) + (tabElement.clientWidth / 2);
-      tabsContainer.scrollTo({
-        left: Math.max(0, scrollLeft),
-        behavior: 'smooth'
-      });
-      
-      // Close vertical menu if open
-      if (isVerticalMenuOpen) {
-        toggleVerticalMenu();
-      }
-    }
-    
-    // Function to update tab indicator width to match text width
-    function updateTabIndicator(tabElement) {
-      const textElement = tabElement.querySelector('.tab-text');
-      const indicator = tabElement.querySelector('.tab-indicator');
-      
-      if (textElement && indicator) {
-        const textWidth = textElement.offsetWidth;
-        const textLeft = textElement.offsetLeft;
-        
-        // Set indicator width and position to match text
-        indicator.style.width = `${textWidth}px`;
-        indicator.style.left = `${textLeft}px`;
-      }
-    }
-    
-    // Initialize all tab indicators
-    tabButtons.forEach(button => {
-      if (button.classList.contains('text-black')) {
-        updateTabIndicator(button);
-      }
-    });
-    
-    // Add click event to each tab
-    tabButtons.forEach(button => {
-      button.addEventListener('click', function() {
-        selectTab(this);
-        
-        // Scroll to the corresponding section - smooth scroll without snapping
-        const tabId = this.getAttribute('data-tab');
-        if (tabId) {
-          const section = document.getElementById(tabId);
-          if (section) {
-            // Use scrollIntoView with smooth behavior, but no snap alignment
-            window.scrollTo({
-              top: section.offsetTop - document.querySelector('header').offsetHeight - 
-                   document.querySelector('nav').offsetHeight,
-              behavior: 'smooth'
-            });
-          }
-        }
-      });
-    });
     
     // Toggle vertical menu
     function toggleVerticalMenu() {
@@ -242,93 +166,79 @@ interface MenuCategory {
       
       if (isVerticalMenuOpen) {
         // Hide tabs container
-        tabsContainer.classList.add('invisible', 'opacity-0');
+        tabsContainer?.classList.add('invisible', 'opacity-0');
         
         // Show vertical menu
-        verticalMenu.classList.add('open');
+        verticalMenu?.classList.add('open');
         
         // Highlight hamburger button
-        hamburgerButton.classList.add('text-black');
+        hamburgerBtn?.classList.add('text-black');
       } else {
         // Show tabs container
-        tabsContainer.classList.remove('invisible', 'opacity-0');
+        tabsContainer?.classList.remove('invisible', 'opacity-0');
         
         // Hide vertical menu
-        verticalMenu.classList.remove('open');
+        verticalMenu?.classList.remove('open');
         
         // Reset hamburger button
-        hamburgerButton.classList.remove('text-black');
+        hamburgerBtn?.classList.remove('text-black');
       }
     }
     
     // Hamburger menu click event
-    hamburgerButton.addEventListener('click', toggleVerticalMenu);
+    hamburgerBtn?.addEventListener('click', toggleVerticalMenu);
     
-    // Vertical menu tab click events
-    const verticalTabButtons = document.querySelectorAll('[data-vertical-tab]');
-    verticalTabButtons.forEach(button => {
-      button.addEventListener('click', function() {
-        const tabId = this.getAttribute('data-vertical-tab');
-        if (tabId) {
-          const horizontalTab = document.querySelector(`[data-tab="${tabId}"]`);
-          if (horizontalTab) {
-            selectTab(horizontalTab);
-            
-            // Smooth scroll to section without snapping
-            const section = document.getElementById(tabId);
-            if (section) {
-              window.scrollTo({
-                top: section.offsetTop - document.querySelector('header').offsetHeight - 
-                     document.querySelector('nav').offsetHeight,
-                behavior: 'smooth'
-              });
-            }
-          }
+    // Close vertical menu when clicking a link
+    verticalMenu?.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        if (isVerticalMenuOpen) {
+          toggleVerticalMenu();
         }
       });
     });
     
-    // Add simple touch swiping for tabs
-    let touchStartX = 0;
+    // Simple scrollspy with Intersection Observer
+    const navbarHeight = 110; // Approximate header + nav height
     
-    tabsContainer.addEventListener('scroll', function() {
-      // This deliberately empty handler enables momentum scrolling on iOS
-    }, { passive: true });
-    
-    // Implement scrollspy using Intersection Observer for better performance
-    const navbarHeight = document.querySelector('header').offsetHeight + 
-                         document.querySelector('nav').offsetHeight;
-    
-    // Create an observer for each section
-    const sections = Array.from(document.querySelectorAll('section[id]'));
-    let currentActiveSection = null;
-    
-    // Options for Intersection Observer with adjusted threshold
     const observerOptions = {
       root: null,
       rootMargin: `-${navbarHeight}px 0px -50% 0px`,
       threshold: 0.1
     };
     
-    // Callback when section visibility changes
-    const observerCallback = (entries) => {
+    const observerCallback = (entries: IntersectionObserverEntry[]) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           const sectionId = entry.target.id;
           
-          // Only update if we have a new section
-          if (currentActiveSection !== sectionId) {
-            currentActiveSection = sectionId;
-            
-            // Update active tab
-            const activeTab = document.querySelector(`[data-tab="${sectionId}"]`);
-            if (activeTab && !activeTab.classList.contains('text-black')) {
-              selectTab(activeTab);
+          // Update active tab
+          tabLinks.forEach(link => {
+            if (link.getAttribute('data-section-id') === sectionId) {
+              link.setAttribute('data-active', 'true');
+              // Scroll the tab into view if needed
+              ensureTabVisible(link);
+            } else {
+              link.setAttribute('data-active', 'false');
             }
-          }
+          });
         }
       });
     };
+    
+    // Simple function to ensure the active tab is visible
+    function ensureTabVisible(tabElement: Element): void {
+      const container = tabElement.closest('.tabs-container');
+      if (container) {
+        const tabRect = tabElement.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+        
+        if (tabRect.left < containerRect.left) {
+          container.scrollLeft += tabRect.left - containerRect.left - 20;
+        } else if (tabRect.right > containerRect.right) {
+          container.scrollLeft += tabRect.right - containerRect.right + 20;
+        }
+      }
+    }
     
     // Create and start the observer
     const observer = new IntersectionObserver(observerCallback, observerOptions);
@@ -338,17 +248,25 @@ interface MenuCategory {
       observer.observe(section);
     });
     
-    // Initialize by highlighting the first visible section
+    // Initialize by highlighting visible section on page load
     setTimeout(() => {
-      const visibleSection = sections.find(section => {
+      // Find the section that's most visible
+      const currentSection = sections.find(section => {
         const rect = section.getBoundingClientRect();
         return rect.top < window.innerHeight * 0.5 && rect.bottom > navbarHeight;
       });
       
-      if (visibleSection) {
-        const activeTab = document.querySelector(`[data-tab="${visibleSection.id}"]`);
-        if (activeTab) {
-          selectTab(activeTab);
+      if (currentSection) {
+        tabLinks.forEach(link => {
+          const isActive = link.getAttribute('data-section-id') === currentSection.id;
+          link.setAttribute('data-active', isActive ? 'true' : 'false');
+          if (isActive) ensureTabVisible(link);
+        });
+      } else if (sections.length > 0) {
+        // If no section is visible, highlight the first one
+        const firstTab = document.querySelector(`.tab-link[data-section-id="${sections[0].id}"]`);
+        if (firstTab) {
+          firstTab.setAttribute('data-active', 'true');
         }
       }
     }, 100);

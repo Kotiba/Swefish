@@ -16,48 +16,55 @@ interface MenuCategory {
 
 <!-- Menu navigation with tabs -->
 <nav class="fixed top-[52px] left-0 right-0 z-10 bg-white border-b">
-  <div class="tab-bar-container">
-    <!-- Menu button - absolutely positioned to prevent any movement -->
-    <div class="hamburger-container">
-      <button id="hamburger-menu" class="p-3 transition-colors hover:text-black focus:outline-none">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="4" x2="20" y1="12" y2="12" />
-          <line x1="4" x2="20" y1="6" y2="6" />
-          <line x1="4" x2="20" y1="18" y2="18" />
-        </svg>
-      </button>
-    </div>
+  <div class="relative flex h-14">
+    <!-- Menu button -->
+    <button 
+      id="menu-toggle" 
+      class="flex items-center justify-center w-14 h-full border-r border-gray-200 hover:bg-gray-50 focus:outline-none"
+      aria-expanded="false"
+      aria-controls="mobile-menu"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="4" x2="20" y1="12" y2="12" />
+        <line x1="4" x2="20" y1="6" y2="6" />
+        <line x1="4" x2="20" y1="18" y2="18" />
+      </svg>
+    </button>
     
-    <!-- Scrollable tabs container - this is hidden when menu opens -->
-    <div class="tabs-container flex overflow-x-auto scrollbar-hide pb-2 relative transition-opacity duration-200">
+    <!-- Horizontal tabs - visible on desktop and when mobile menu is closed -->
+    <div id="tabs-container" class="flex overflow-x-auto scrollbar-hide">
       {categories.map((category: MenuCategory, index: number) => (
-        <button 
-          data-tab={category.id} 
+        <a 
+          href={`#${category.id}`}
           class={`flex-shrink-0 px-4 py-3 text-base font-medium whitespace-nowrap transition-colors relative ${
             index === 0 ? 'text-black' : 'text-gray-500'
           }`}
+          data-category-id={category.id}
         >
-          <span class="tab-text">{category.title}</span>
-          <div class={`tab-indicator absolute bottom-0 h-0.5 bg-black ${
-            index === 0 ? '' : 'opacity-0'
+          <span>{category.title}</span>
+          <div class={`absolute bottom-0 left-0 h-0.5 bg-black transition-all duration-300 ${
+            index === 0 ? 'w-full' : 'w-0'
           }`}></div>
-        </button>
+        </a>
       ))}
     </div>
   </div>
   
-  <!-- Vertical menu (hidden by default) - positioned directly UNDER the tab bar -->
-  <div id="vertical-menu" class="vertical-menu w-full bg-white shadow-md border-t">
+  <!-- Mobile menu - hidden by default -->
+  <div 
+    id="mobile-menu" 
+    class="hidden bg-white border-t"
+    aria-hidden="true"
+  >
     <div class="py-2 px-4">
       {categories.map((category: MenuCategory) => (
-        <button 
-          data-vertical-tab={category.id} 
-          class={`block w-full text-left py-3 border-b border-gray-100 ${
-            category.id === categories[0].id ? 'font-medium' : ''
-          }`}
+        <a 
+          href={`#${category.id}`}
+          class="block w-full text-left py-3 border-b border-gray-100 hover:bg-gray-50"
+          data-category-id={category.id}
         >
           {category.title}
-        </button>
+        </a>
       ))}
     </div>
   </div>
@@ -75,283 +82,139 @@ interface MenuCategory {
     scrollbar-width: none;  /* Firefox */
   }
   
-  /* Active tab indicator animation */
-  .tab-indicator {
-    transition: transform 0.3s ease, width 0.3s ease, left 0.3s ease;
-    /* Remove the left: 0 and w-full to make it match only text width */
-    left: 0;
-    width: 100%;
-  }
-  
-  /* Vertical menu animation */
-  .vertical-menu {
-    transform: translateY(-20px);
-    opacity: 0;
-    visibility: hidden;
-    transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), 
-                opacity 0.2s ease,
-                visibility 0s linear 0.3s;
-    height: 0;
-    overflow: hidden;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    z-index: 30;
-  }
-  
-  .vertical-menu.open {
-    transform: translateY(0);
-    opacity: 1;
-    visibility: visible;
-    transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), 
-                opacity 0.2s ease,
-                visibility 0s linear 0s;
-    height: auto;
-  }
-  
-  /* Absolutely position the hamburger to prevent any movement */
-  .hamburger-container {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 56px;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10;
-    border-right: 1px solid #e5e7eb; /* Add right border */
-  }
-  
-  /* Ensure tab bar maintains consistent height */
-  .tab-bar-container {
-    position: relative;
-    height: 56px; /* Fixed height to match tabs */
-  }
-  
-  /* Add padding to tabs container to make room for hamburger */
-  .tabs-container {
-    position: absolute;
-    left: 56px; /* Match hamburger container width */
-    right: 0;
-    padding-left: 0; /* Remove the previous padding */
-    overflow-x: auto;
-  }
-
-  /* Simple smooth scrolling without snapping */
+  /* Smooth scrolling for the whole page */
   :global(html) {
     scroll-behavior: smooth;
   }
   
+  /* Adjust scroll margin for sections to account for fixed header */
   :global(section[id]) {
     scroll-margin-top: 112px; /* Adjust based on your header + nav height */
   }
 </style>
 
-<!-- Use client-side script to avoid TypeScript errors -->
-<script is:inline>
+<script>
   document.addEventListener('DOMContentLoaded', function() {
-    // Get all tab buttons
-    const tabButtons = document.querySelectorAll('[data-tab]');
-    const hamburgerButton = document.getElementById('hamburger-menu');
-    const verticalMenu = document.getElementById('vertical-menu');
-    const tabsContainer = document.querySelector('.tabs-container');
-    let isVerticalMenuOpen = false;
+    // Elements
+    const menuToggle = document.getElementById('menu-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const tabsContainer = document.getElementById('tabs-container');
+    const categoryLinks = document.querySelectorAll('[data-category-id]');
     
-    if (!hamburgerButton || !verticalMenu || !tabsContainer) return;
+    // State
+    let isMobileMenuOpen = false;
     
-    // Function to handle tab selection
-    function selectTab(tabElement) {
-      // Remove active class from all tabs
-      tabButtons.forEach(btn => {
-        btn.classList.remove('text-black');
-        btn.classList.add('text-gray-500');
-        const indicator = btn.querySelector('.tab-indicator');
-        if (indicator) indicator.classList.add('opacity-0');
+    // Toggle mobile menu
+    if (menuToggle && mobileMenu && tabsContainer) {
+      menuToggle.addEventListener('click', () => {
+        isMobileMenuOpen = !isMobileMenuOpen;
+        
+        // Update ARIA attributes
+        menuToggle.setAttribute('aria-expanded', isMobileMenuOpen.toString());
+        mobileMenu.setAttribute('aria-hidden', (!isMobileMenuOpen).toString());
+        
+        // Toggle visibility
+        if (isMobileMenuOpen) {
+          mobileMenu.classList.remove('hidden');
+          tabsContainer.classList.add('hidden');
+          menuToggle.classList.add('text-black');
+        } else {
+          mobileMenu.classList.add('hidden');
+          tabsContainer.classList.remove('hidden');
+          menuToggle.classList.remove('text-black');
+        }
+      });
+    }
+    
+    // Handle category link clicks
+    categoryLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        // Close mobile menu if open
+        if (isMobileMenuOpen && menuToggle && mobileMenu && tabsContainer) {
+          isMobileMenuOpen = false;
+          menuToggle.setAttribute('aria-expanded', 'false');
+          mobileMenu.setAttribute('aria-hidden', 'true');
+          mobileMenu.classList.add('hidden');
+          tabsContainer.classList.remove('hidden');
+          menuToggle.classList.remove('text-black');
+        }
+        
+        // Update active tab
+        const categoryId = link.getAttribute('data-category-id');
+        if (categoryId) {
+          updateActiveTab(categoryId);
+        }
+      });
+    });
+    
+    // Update active tab based on scroll position
+    function updateActiveTab(categoryId: string): void {
+      // Remove active state from all tabs
+      categoryLinks.forEach(link => {
+        link.classList.remove('text-black');
+        link.classList.add('text-gray-500');
+        const indicator = link.querySelector('div');
+        if (indicator) {
+          indicator.classList.remove('w-full');
+          indicator.classList.add('w-0');
+        }
       });
       
-      // Add active class to clicked tab
-      tabElement.classList.remove('text-gray-500');
-      tabElement.classList.add('text-black');
-      const indicator = tabElement.querySelector('.tab-indicator');
-      if (indicator) indicator.classList.remove('opacity-0');
-      
-      // Update indicator width to match text width
-      updateTabIndicator(tabElement);
-      
-      // Scroll the tab into view (centered)
-      const scrollLeft = tabElement.offsetLeft - (tabsContainer.clientWidth / 2) + (tabElement.clientWidth / 2);
-      tabsContainer.scrollTo({
-        left: Math.max(0, scrollLeft),
-        behavior: 'smooth'
-      });
-      
-      // Close vertical menu if open
-      if (isVerticalMenuOpen) {
-        toggleVerticalMenu();
+      // Add active state to current tab
+      const activeLink = document.querySelector(`[data-category-id="${categoryId}"]`);
+      if (activeLink) {
+        activeLink.classList.remove('text-gray-500');
+        activeLink.classList.add('text-black');
+        const indicator = activeLink.querySelector('div');
+        if (indicator) {
+          indicator.classList.remove('w-0');
+          indicator.classList.add('w-full');
+        }
       }
     }
     
-    // Function to update tab indicator width to match text width
-    function updateTabIndicator(tabElement) {
-      const textElement = tabElement.querySelector('.tab-text');
-      const indicator = tabElement.querySelector('.tab-indicator');
+    // Use Intersection Observer for scrollspy
+    const header = document.querySelector('header');
+    const nav = document.querySelector('nav');
+    
+    if (header && nav) {
+      const navbarHeight = header.offsetHeight + nav.offsetHeight;
       
-      if (textElement && indicator) {
-        const textWidth = textElement.offsetWidth;
-        const textLeft = textElement.offsetLeft;
+      const observerOptions = {
+        root: null,
+        rootMargin: `-${navbarHeight}px 0px -50% 0px`,
+        threshold: 0.1
+      };
+      
+      const observerCallback = (entries: IntersectionObserverEntry[]): void => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const sectionId = entry.target.id;
+            updateActiveTab(sectionId);
+          }
+        });
+      };
+      
+      const observer = new IntersectionObserver(observerCallback, observerOptions);
+      
+      // Observe all sections
+      document.querySelectorAll('section[id]').forEach(section => {
+        observer.observe(section);
+      });
+      
+      // Initialize with the first visible section
+      setTimeout(() => {
+        const sections = Array.from(document.querySelectorAll('section[id]'));
+        const visibleSection = sections.find(section => {
+          const rect = section.getBoundingClientRect();
+          return rect.top < window.innerHeight * 0.5 && rect.bottom > navbarHeight;
+        });
         
-        // Set indicator width and position to match text
-        indicator.style.width = `${textWidth}px`;
-        indicator.style.left = `${textLeft}px`;
-      }
+        if (visibleSection) {
+          updateActiveTab(visibleSection.id);
+        }
+      }, 100);
     }
-    
-    // Initialize all tab indicators
-    tabButtons.forEach(button => {
-      if (button.classList.contains('text-black')) {
-        updateTabIndicator(button);
-      }
-    });
-    
-    // Add click event to each tab
-    tabButtons.forEach(button => {
-      button.addEventListener('click', function() {
-        selectTab(this);
-        
-        // Scroll to the corresponding section - smooth scroll without snapping
-        const tabId = this.getAttribute('data-tab');
-        if (tabId) {
-          const section = document.getElementById(tabId);
-          if (section) {
-            // Use scrollIntoView with smooth behavior, but no snap alignment
-            window.scrollTo({
-              top: section.offsetTop - document.querySelector('header').offsetHeight - 
-                   document.querySelector('nav').offsetHeight,
-              behavior: 'smooth'
-            });
-          }
-        }
-      });
-    });
-    
-    // Toggle vertical menu
-    function toggleVerticalMenu() {
-      isVerticalMenuOpen = !isVerticalMenuOpen;
-      
-      if (isVerticalMenuOpen) {
-        // Hide tabs container
-        tabsContainer.classList.add('invisible', 'opacity-0');
-        
-        // Show vertical menu
-        verticalMenu.classList.add('open');
-        
-        // Highlight hamburger button
-        hamburgerButton.classList.add('text-black');
-      } else {
-        // Show tabs container
-        tabsContainer.classList.remove('invisible', 'opacity-0');
-        
-        // Hide vertical menu
-        verticalMenu.classList.remove('open');
-        
-        // Reset hamburger button
-        hamburgerButton.classList.remove('text-black');
-      }
-    }
-    
-    // Hamburger menu click event
-    hamburgerButton.addEventListener('click', toggleVerticalMenu);
-    
-    // Vertical menu tab click events
-    const verticalTabButtons = document.querySelectorAll('[data-vertical-tab]');
-    verticalTabButtons.forEach(button => {
-      button.addEventListener('click', function() {
-        const tabId = this.getAttribute('data-vertical-tab');
-        if (tabId) {
-          const horizontalTab = document.querySelector(`[data-tab="${tabId}"]`);
-          if (horizontalTab) {
-            selectTab(horizontalTab);
-            
-            // Smooth scroll to section without snapping
-            const section = document.getElementById(tabId);
-            if (section) {
-              window.scrollTo({
-                top: section.offsetTop - document.querySelector('header').offsetHeight - 
-                     document.querySelector('nav').offsetHeight,
-                behavior: 'smooth'
-              });
-            }
-          }
-        }
-      });
-    });
-    
-    // Add simple touch swiping for tabs
-    let touchStartX = 0;
-    
-    tabsContainer.addEventListener('scroll', function() {
-      // This deliberately empty handler enables momentum scrolling on iOS
-    }, { passive: true });
-    
-    // Implement scrollspy using Intersection Observer for better performance
-    const navbarHeight = document.querySelector('header').offsetHeight + 
-                         document.querySelector('nav').offsetHeight;
-    
-    // Create an observer for each section
-    const sections = Array.from(document.querySelectorAll('section[id]'));
-    let currentActiveSection = null;
-    
-    // Options for Intersection Observer with adjusted threshold
-    const observerOptions = {
-      root: null,
-      rootMargin: `-${navbarHeight}px 0px -50% 0px`,
-      threshold: 0.1
-    };
-    
-    // Callback when section visibility changes
-    const observerCallback = (entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const sectionId = entry.target.id;
-          
-          // Only update if we have a new section
-          if (currentActiveSection !== sectionId) {
-            currentActiveSection = sectionId;
-            
-            // Update active tab
-            const activeTab = document.querySelector(`[data-tab="${sectionId}"]`);
-            if (activeTab && !activeTab.classList.contains('text-black')) {
-              selectTab(activeTab);
-            }
-          }
-        }
-      });
-    };
-    
-    // Create and start the observer
-    const observer = new IntersectionObserver(observerCallback, observerOptions);
-    
-    // Start observing each section
-    sections.forEach(section => {
-      observer.observe(section);
-    });
-    
-    // Initialize by highlighting the first visible section
-    setTimeout(() => {
-      const visibleSection = sections.find(section => {
-        const rect = section.getBoundingClientRect();
-        return rect.top < window.innerHeight * 0.5 && rect.bottom > navbarHeight;
-      });
-      
-      if (visibleSection) {
-        const activeTab = document.querySelector(`[data-tab="${visibleSection.id}"]`);
-        if (activeTab) {
-          selectTab(activeTab);
-        }
-      }
-    }, 100);
   });
 </script>
 
