@@ -159,8 +159,6 @@ interface MenuCategory {
     const tabLinks = document.querySelectorAll('.tab-link');
     const sections = Array.from(document.querySelectorAll('section[id]'));
     let isVerticalMenuOpen = false;
-    let isManuallyScrolling = false;
-    let scrollTimeout: ReturnType<typeof setTimeout> | null = null;
     
     // Toggle vertical menu
     function toggleVerticalMenu() {
@@ -199,21 +197,38 @@ interface MenuCategory {
       });
     });
     
-    // Add click handler for tab links to prevent default when manually clicking
+    // Direct click handler for tab links to prevent scroll issues
     tabLinks.forEach(link => {
       link.addEventListener('click', (e) => {
-        // Set a flag to indicate we're manually navigating
-        isManuallyScrolling = true;
+        e.preventDefault();
         
-        // Clear any existing timeout
-        if (scrollTimeout) {
-          clearTimeout(scrollTimeout);
+        // Get the target section
+        const sectionId = link.getAttribute('data-section-id');
+        if (!sectionId) return;
+        
+        // Immediately update active tab state to prevent flicker
+        tabLinks.forEach(tab => {
+          tab.setAttribute('data-active', tab === link ? 'true' : 'false');
+        });
+        
+        // Get the target section element
+        const targetSection = document.getElementById(sectionId);
+        if (targetSection) {
+          // Stop any ongoing scroll animations
+          window.scrollTo({
+            top: window.scrollY,
+            behavior: 'auto'
+          });
+          
+          // Scroll to section with fixed offset for header
+          const navbarHeight = 110; // Adjust based on your header height
+          const targetPosition = targetSection.getBoundingClientRect().top + window.scrollY - navbarHeight;
+          
+          window.scrollTo({
+            top: targetPosition,
+            behavior: 'smooth'
+          });
         }
-        
-        // Reset the flag after animation completes
-        scrollTimeout = setTimeout(() => {
-          isManuallyScrolling = false;
-        }, 500); // Adjust based on your animation duration
       });
     });
     
@@ -226,66 +241,46 @@ interface MenuCategory {
       threshold: 0.1
     };
     
-    // Debounce function to limit how often the callback runs
-    function debounce(func: Function, wait = 50) {
-      let timeout: ReturnType<typeof setTimeout> | null = null;
-      return (...args: any[]) => {
-        if (timeout) clearTimeout(timeout);
-        timeout = setTimeout(() => func(...args), wait);
-      };
-    }
-    
-    const observerCallback = debounce((entries: IntersectionObserverEntry[]) => {
-      // Skip updating if we're manually scrolling
-      if (isManuallyScrolling) return;
-      
+    // Separate observer for updating tab visibility without affecting scrolling
+    const tabUpdateCallback = (entries: IntersectionObserverEntry[]) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           const sectionId = entry.target.id;
           
-          // Update active tab
-          tabLinks.forEach(link => {
-            if (link.getAttribute('data-section-id') === sectionId) {
-              link.setAttribute('data-active', 'true');
-              // Scroll the tab into view if needed, but not during manual navigation
-              if (!isManuallyScrolling) {
-                ensureTabVisible(link);
-              }
-            } else {
-              link.setAttribute('data-active', 'false');
-            }
-          });
+          // Only update tab state and tab scroll position
+          const activeTab = document.querySelector(`.tab-link[data-section-id="${sectionId}"]`);
+          if (activeTab) {
+            tabLinks.forEach(link => {
+              link.setAttribute('data-active', link === activeTab ? 'true' : 'false');
+            });
+            
+            // Center the active tab in view without triggering scroll events
+            centerTabInView(activeTab);
+          }
         }
       });
-    });
+    };
     
-    // Simple function to ensure the active tab is visible
-    function ensureTabVisible(tabElement: Element): void {
-      // Skip if we're manually scrolling to prevent conflicts
-      if (isManuallyScrolling) return;
-      
+    // Center tab in view without triggering scroll side effects
+    function centerTabInView(tabElement: Element): void {
       const container = tabElement.closest('.tabs-container');
-      if (container) {
-        const tabRect = tabElement.getBoundingClientRect();
-        const containerRect = container.getBoundingClientRect();
+      if (!container) return;
+      
+      const tabRect = tabElement.getBoundingClientRect();
+      const containerRect = container.getBoundingClientRect();
+      
+      // Only scroll if tab is not fully visible
+      if (tabRect.left < containerRect.left || tabRect.right > containerRect.right) {
+        // Calculate center position
+        const scrollLeft = tabRect.left + (tabRect.width / 2) - containerRect.left - (containerRect.width / 2);
         
-        // Use smoother scrolling with behavior: 'smooth'
-        if (tabRect.left < containerRect.left) {
-          container.scrollTo({
-            left: container.scrollLeft + tabRect.left - containerRect.left - 20,
-            behavior: 'smooth'
-          });
-        } else if (tabRect.right > containerRect.right) {
-          container.scrollTo({
-            left: container.scrollLeft + tabRect.right - containerRect.right + 20,
-            behavior: 'smooth'
-          });
-        }
+        // Use programmatic scroll without smooth behavior to avoid animation conflicts
+        container.scrollLeft += scrollLeft;
       }
     }
     
     // Create and start the observer
-    const observer = new IntersectionObserver(observerCallback, observerOptions);
+    const observer = new IntersectionObserver(tabUpdateCallback, observerOptions);
     
     // Start observing each section
     sections.forEach(section => {
@@ -304,7 +299,10 @@ interface MenuCategory {
         tabLinks.forEach(link => {
           const isActive = link.getAttribute('data-section-id') === currentSection.id;
           link.setAttribute('data-active', isActive ? 'true' : 'false');
-          if (isActive) ensureTabVisible(link);
+          if (isActive) {
+            const activeTab = link as Element;
+            centerTabInView(activeTab);
+          }
         });
       } else if (sections.length > 0) {
         // If no section is visible, highlight the first one
