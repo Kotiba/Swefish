@@ -22,7 +22,7 @@ interface Props {
 This is the main structure for the page.
 We set the language of the page to English and add classes for scrollbar and scroll behavior.
 -->
-<html lang={lang} class="scrollbar-hide lenis lenis-smooth scroll-pt-16">
+<html lang={lang} class="lenis lenis-smooth scroll-pt-16">
   <head>
     <!-- Adding metadata to the HTML document -->
     <Meta meta={meta} structuredData={structuredData} />
@@ -64,6 +64,7 @@ We set the language of the page to English and add classes for scrollbar and scr
     </script>
     <style>
       /* CSS rules for the page scrollbar */
+      /* Commented out to restore scrollbar visibility
       .scrollbar-hide::-webkit-scrollbar {
         display: none;
       }
@@ -72,6 +73,7 @@ We set the language of the page to English and add classes for scrollbar and scr
         -ms-overflow-style: none;
         scrollbar-width: none;
       }
+      */
     </style>
   </body>
 </html>

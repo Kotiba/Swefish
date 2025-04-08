@@ -84,11 +84,7 @@ interface MenuCategory {
   
   /* Active tab feedback */
   .tab-link {
-    transition: color 0.2s ease, transform 0.1s ease;
-  }
-  
-  .tab-link:active {
-    transform: scale(0.96);
+    transition: color 0.2s ease;
   }
   
   /* Tab indicator styles */
@@ -390,10 +386,6 @@ interface MenuCategory {
         // Get section and scroll to it
         const targetSection = document.getElementById(sectionId);
         if (targetSection) {
-          // Visual feedback on click
-          link.classList.add('clicked');
-          setTimeout(() => link.classList.remove('clicked'), 200);
-          
           // Set navigation lock
           activeNavigation = true;
           
