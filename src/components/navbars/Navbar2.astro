@@ -159,6 +159,8 @@ interface MenuCategory {
     const tabLinks = document.querySelectorAll('.tab-link');
     const sections = Array.from(document.querySelectorAll('section[id]'));
     let isVerticalMenuOpen = false;
+    let isManuallyScrolling = false;
+    let scrollTimeout: ReturnType<typeof setTimeout> | null = null;
     
     // Toggle vertical menu
     function toggleVerticalMenu() {
@@ -197,6 +199,24 @@ interface MenuCategory {
       });
     });
     
+    // Add click handler for tab links to prevent default when manually clicking
+    tabLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        // Set a flag to indicate we're manually navigating
+        isManuallyScrolling = true;
+        
+        // Clear any existing timeout
+        if (scrollTimeout) {
+          clearTimeout(scrollTimeout);
+        }
+        
+        // Reset the flag after animation completes
+        scrollTimeout = setTimeout(() => {
+          isManuallyScrolling = false;
+        }, 500); // Adjust based on your animation duration
+      });
+    });
+    
     // Simple scrollspy with Intersection Observer
     const navbarHeight = 110; // Approximate header + nav height
     
@@ -206,7 +226,19 @@ interface MenuCategory {
       threshold: 0.1
     };
     
-    const observerCallback = (entries: IntersectionObserverEntry[]) => {
+    // Debounce function to limit how often the callback runs
+    function debounce(func: Function, wait = 50) {
+      let timeout: ReturnType<typeof setTimeout> | null = null;
+      return (...args: any[]) => {
+        if (timeout) clearTimeout(timeout);
+        timeout = setTimeout(() => func(...args), wait);
+      };
+    }
+    
+    const observerCallback = debounce((entries: IntersectionObserverEntry[]) => {
+      // Skip updating if we're manually scrolling
+      if (isManuallyScrolling) return;
+      
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           const sectionId = entry.target.id;
@@ -215,27 +247,39 @@ interface MenuCategory {
           tabLinks.forEach(link => {
             if (link.getAttribute('data-section-id') === sectionId) {
               link.setAttribute('data-active', 'true');
-              // Scroll the tab into view if needed
-              ensureTabVisible(link);
+              // Scroll the tab into view if needed, but not during manual navigation
+              if (!isManuallyScrolling) {
+                ensureTabVisible(link);
+              }
             } else {
               link.setAttribute('data-active', 'false');
             }
           });
         }
       });
-    };
+    });
     
     // Simple function to ensure the active tab is visible
     function ensureTabVisible(tabElement: Element): void {
+      // Skip if we're manually scrolling to prevent conflicts
+      if (isManuallyScrolling) return;
+      
       const container = tabElement.closest('.tabs-container');
       if (container) {
         const tabRect = tabElement.getBoundingClientRect();
         const containerRect = container.getBoundingClientRect();
         
+        // Use smoother scrolling with behavior: 'smooth'
         if (tabRect.left < containerRect.left) {
-          container.scrollLeft += tabRect.left - containerRect.left - 20;
+          container.scrollTo({
+            left: container.scrollLeft + tabRect.left - containerRect.left - 20,
+            behavior: 'smooth'
+          });
         } else if (tabRect.right > containerRect.right) {
-          container.scrollLeft += tabRect.right - containerRect.right + 20;
+          container.scrollTo({
+            left: container.scrollLeft + tabRect.right - containerRect.right + 20,
+            behavior: 'smooth'
+          });
         }
       }
     }
