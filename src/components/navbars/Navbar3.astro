@@ -15,7 +15,7 @@ interface MenuCategory {
 </header>
 
 <!-- Menu navigation with tabs -->
-<nav class="fixed top-[52px] left-0 right-0 z-10 bg-white border-b shadow-lg shadow-black/3">
+<nav class="fixed top-[52px] left-0 right-0 z-10 bg-white border-b shadow-lg shadow-black/5">
   <div class="tab-bar-container">
     <!-- Menu button - absolutely positioned to prevent any movement -->
     <div class="hamburger-container">
@@ -33,7 +33,7 @@ interface MenuCategory {
       {categories.map((category: MenuCategory, index: number) => (
         <a 
           href={`#${category.id}`}
-          class="tab-link flex-shrink-0 px-4 py-3 text-base font-medium whitespace-nowrap transition-all relative flex flex-col items-center"
+          class="tab-link flex-shrink-0 px-4 py-3 text-base font-medium whitespace-nowrap transition-all relative flex flex-col items-center justify-center h-full"
           data-section-id={category.id}
         >
           <span class="tab-text">{category.title}</span>
@@ -76,6 +76,11 @@ interface MenuCategory {
     color: #6b7280; /* Default gray color */
     font-weight: 600; /* Make all tabs bold */
     padding-bottom: 10px; /* Add extra padding for indicator */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
   }
   
   .tab-link[data-active="true"] {
@@ -103,6 +108,7 @@ interface MenuCategory {
   .tab-text {
     position: relative;
     display: inline-block;
+    margin-top: 2px; /* Adjusted margin to move text down */
   }
   
   .tab-indicator {
