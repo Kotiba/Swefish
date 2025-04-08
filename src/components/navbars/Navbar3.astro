@@ -15,7 +15,7 @@ interface MenuCategory {
 </header>
 
 <!-- Menu navigation with tabs -->
-<nav class="fixed top-[52px] left-0 right-0 z-10 bg-white border-b">
+<nav class="fixed top-[52px] left-0 right-0 z-10 bg-white border-b shadow-lg shadow-black/3">
   <div class="tab-bar-container">
     <!-- Menu button - absolutely positioned to prevent any movement -->
     <div class="hamburger-container">
@@ -33,11 +33,11 @@ interface MenuCategory {
       {categories.map((category: MenuCategory, index: number) => (
         <a 
           href={`#${category.id}`}
-          class="tab-link flex-shrink-0 px-4 py-3 text-base font-medium whitespace-nowrap transition-all relative"
+          class="tab-link flex-shrink-0 px-4 py-3 text-base font-medium whitespace-nowrap transition-all relative flex flex-col items-center"
           data-section-id={category.id}
         >
-          {category.title}
-          <span class="tab-indicator absolute bottom-0 left-0 w-full h-0.5 scale-x-0 transition-transform duration-300 bg-black"></span>
+          <span class="tab-text">{category.title}</span>
+          <span class="tab-indicator absolute bottom-0 h-[2px] bg-black rounded-sm"></span>
         </a>
       ))}
     </div>
@@ -74,24 +74,44 @@ interface MenuCategory {
   /* Set active state for tab links */
   .tab-link {
     color: #6b7280; /* Default gray color */
+    font-weight: 600; /* Make all tabs bold */
+    padding-bottom: 10px; /* Add extra padding for indicator */
   }
   
   .tab-link[data-active="true"] {
     color: black;
-    font-weight: 600;
-  }
-  
-  .tab-link[data-active="true"] .tab-indicator {
-    transform: scaleX(1);
   }
   
   /* Active tab feedback */
   .tab-link {
-    transition: color 0.2s ease, transform 0.1s ease;
+    transition: color 0.2s ease;
   }
   
-  .tab-link:active {
-    transform: scale(0.96);
+  /* Tab indicator styles */
+  .tab-indicator {
+    width: 0; /* Start with zero width */
+    opacity: 0;
+    transition: width 0.3s ease, opacity 0.3s ease;
+  }
+  
+  .tab-link[data-active="true"] .tab-indicator {
+    width: 100%; /* Same width as the text */
+    opacity: 1;
+  }
+  
+  /* Position indicator relative to text element for proper width */
+  .tab-text {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .tab-indicator {
+    bottom: 0;
+    left: 0; 
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
   }
   
   /* Vertical menu animation */
@@ -163,7 +183,7 @@ interface MenuCategory {
     right: 0;
     top: 0;
     height: 100%;
-    width: 24px;
+    width: 30px;
     background: linear-gradient(to right, rgba(255,255,255,0), rgba(255,255,255,0.9));
     pointer-events: none;
     z-index: 5;
@@ -254,7 +274,29 @@ interface MenuCategory {
       }
     }
     
-    // Find the active tab by visible section
+    // Update indicator widths based on text content
+    function updateIndicatorWidths() {
+      tabLinks.forEach(link => {
+        const textElement = link.querySelector('.tab-text');
+        const indicator = link.querySelector('.tab-indicator');
+        
+        if (textElement && indicator) {
+          // Set indicator width based on text width
+          const textWidth = textElement.getBoundingClientRect().width;
+          (indicator as HTMLElement).style.width = `${textWidth}px`;
+          
+          // Initially hide indicator for non-active tabs
+          if (link.getAttribute('data-active') !== 'true') {
+            (indicator as HTMLElement).style.width = '0px';
+          }
+        }
+      });
+    }
+    
+    // Update indicator widths on initial load
+    updateIndicatorWidths();
+    
+    // Override active tab style updates
     function updateActiveTab(): void {
       if (activeNavigation) return; // Skip during active navigation
       
@@ -292,6 +334,16 @@ interface MenuCategory {
               if (isActive !== (link.getAttribute('data-active') === 'true')) {
                 link.setAttribute('data-active', isActive ? 'true' : 'false');
                 
+                // Update indicator width
+                const indicator = link.querySelector('.tab-indicator');
+                const textElement = link.querySelector('.tab-text');
+                
+                if (indicator && textElement) {
+                  const textWidth = textElement.getBoundingClientRect().width;
+                  (indicator as HTMLElement).style.width = isActive ? `${textWidth}px` : '0px';
+                  (indicator as HTMLElement).style.opacity = isActive ? '1' : '0';
+                }
+                
                 // Only scroll the tab into view if it's newly activated
                 if (isActive) {
                   scrollTabIntoView(link);
@@ -303,7 +355,7 @@ interface MenuCategory {
       }
     }
     
-    // Click handler for tab links - single responsibility: scroll to section
+    // Click handler for tab links
     tabLinks.forEach(link => {
       link.addEventListener('click', (e) => {
         e.preventDefault();
@@ -318,16 +370,22 @@ interface MenuCategory {
           
           if (wasActive !== willBeActive) {
             tab.setAttribute('data-active', willBeActive ? 'true' : 'false');
+            
+            // Update indicator width
+            const indicator = tab.querySelector('.tab-indicator');
+            const textElement = tab.querySelector('.tab-text');
+            
+            if (indicator && textElement) {
+              const textWidth = textElement.getBoundingClientRect().width;
+              (indicator as HTMLElement).style.width = willBeActive ? `${textWidth}px` : '0px';
+              (indicator as HTMLElement).style.opacity = willBeActive ? '1' : '0';
+            }
           }
         });
         
         // Get section and scroll to it
         const targetSection = document.getElementById(sectionId);
         if (targetSection) {
-          // Visual feedback on click
-          link.classList.add('clicked');
-          setTimeout(() => link.classList.remove('clicked'), 200);
-          
           // Set navigation lock
           activeNavigation = true;
           
@@ -368,6 +426,7 @@ interface MenuCategory {
     
     // Also update on resize
     window.addEventListener('resize', throttle(() => {
+      updateIndicatorWidths();
       updateActiveTab();
     }, 100));
     
