@@ -25,8 +25,8 @@ export default function MenuItemDrawer() {
     <Drawer.Root open={isOpen} onOpenChange={setIsOpen}>
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 bg-black/40" />
-        <Drawer.Content className="bg-gray-100 flex flex-col rounded-t-[10px] mt-24 h-[70%] lg:h-[600px] fixed bottom-0 left-0 right-0 outline-none">
-          <div className="p-4 bg-white rounded-t-[10px] flex-1 overflow-y-auto">
+        <Drawer.Content className="bg-gray-100 flex flex-col rounded-t-[20px] mt-24 h-[70%] lg:h-[600px] fixed bottom-0 left-0 right-0 outline-none">
+          <div className="p-4 bg-white rounded-t-[20px] flex-1">
             <div className="max-w-md mx-auto space-y-4">
               <div aria-hidden className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-gray-300 mb-8" />
               {selectedItem && (
@@ -69,13 +69,6 @@ export default function MenuItemDrawer() {
                   )}
                 </>
               )}
-            </div>
-          </div>
-          <div className="p-4 bg-gray-100 border-t border-gray-200">
-            <div className="flex gap-6 justify-end max-w-md mx-auto">
-              <Drawer.Close className="px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700 transition-colors">
-                Close
-              </Drawer.Close>
             </div>
           </div>
         </Drawer.Content>
