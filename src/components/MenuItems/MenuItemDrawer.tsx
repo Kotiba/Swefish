@@ -26,9 +26,9 @@ export default function MenuItemDrawer() {
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 bg-black/40" />
         <Drawer.Content className="bg-gray-100 flex flex-col rounded-t-[20px] mt-24 h-[70%] lg:h-[600px] fixed bottom-0 left-0 right-0 outline-none">
-          <div className="p-4 bg-white rounded-t-[20px] flex-1">
+          <div className="p-4 bg-white rounded-t-[20px] flex-1 overflow-y-auto">
             <div className="max-w-md mx-auto space-y-4">
-              <div aria-hidden className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-gray-300 mb-8" />
+              <div aria-hidden className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-gray-300 mb-8 sticky top-0" />
               {selectedItem && (
                 <>
                   <div className="w-full aspect-[4/3] rounded-lg overflow-hidden bg-gray-100">
