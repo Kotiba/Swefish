@@ -3,9 +3,7 @@ import tailwindcss from "@tailwindcss/vite";
 import sitemap from "@astrojs/sitemap";
 import compressor from "astro-compressor";
 import starlight from "@astrojs/starlight";
-
 import mdx from "@astrojs/mdx";
-
 import react from "@astrojs/react";
 
 // https://astro.build/config
