@@ -13,6 +13,7 @@ export interface MenuItem {
   fullWidth?: boolean;
   isTopRated?: boolean;
   weightOptions?: WeightOption[];
+  allergens?: string[];
 }
 
 export interface MenuCategory {

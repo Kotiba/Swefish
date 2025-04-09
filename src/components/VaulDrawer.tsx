@@ -5,7 +5,7 @@ import { Drawer } from 'vaul';
 export default function VaulDrawer() {
   return (
     <Drawer.Root>
-      <Drawer.Trigger className="px-4 py-2 bg-white text-black text-sm rounded-full hover:bg-gray-50 transition-colors border border-gray-300 shadow-sm">
+      <Drawer.Trigger className="px-4 py-2 bg-black text-white text-sm rounded-full hover:bg-gray-50 transition-colors border border-gray-300 shadow-sm">
         Open Drawer
       </Drawer.Trigger>
       <Drawer.Portal>
