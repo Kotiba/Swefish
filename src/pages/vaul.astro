@@ -1,0 +1,90 @@
+---
+import MainLayout from "../layouts/MainLayout.astro";
+import VaulDrawer from "../components/ui/VaulDrawer.astro";
+---
+
+<MainLayout title="Vaul Drawer - Demo">
+  <div class="container mx-auto px-4 py-16 min-h-screen flex flex-col items-center justify-center">
+    <h1 class="text-3xl font-bold mb-8 text-center">Vaul Drawer in Astro</h1>
+    
+    <p class="text-lg mb-8 text-center max-w-md">
+      A lightweight implementation of the Vaul drawer component, converted from React to Astro.
+    </p>
+    
+    <button 
+      id="open-drawer-btn" 
+      class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+    >
+      Open Drawer
+    </button>
+    
+    <div class="mt-8">
+      <div class="p-4 bg-blue-50 rounded-lg border border-blue-100">
+        <h2 class="text-lg font-semibold mb-2">Features:</h2>
+        <ul class="list-disc pl-5 space-y-1">
+          <li>Smooth animations</li>
+          <li>Drag to close</li>
+          <li>Multiple direction support</li>
+          <li>Escape key to dismiss</li>
+          <li>Overlay click to dismiss</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  
+  <!-- The Drawer component -->
+  <VaulDrawer id="vaul-drawer">
+    <div class="p-4">
+      <h2 class="text-xl font-bold mb-4">Drawer Content</h2>
+      <p class="mb-4">This is a simplified version of the Vaul drawer component implemented in Astro.</p>
+      
+      <div class="space-y-4">
+        <div class="p-4 bg-gray-100 rounded-lg">
+          <h3 class="font-medium mb-2">How to use it</h3>
+          <p class="text-sm">You can drag the handle to close the drawer, click outside, or press the Escape key.</p>
+        </div>
+        
+        <div class="p-4 bg-gray-100 rounded-lg">
+          <h3 class="font-medium mb-2">Direction options</h3>
+          <p class="text-sm">The drawer supports opening from different directions: top, bottom, left, or right.</p>
+        </div>
+        
+        <div class="p-4 bg-gray-100 rounded-lg">
+          <h3 class="font-medium mb-2">Customization</h3>
+          <p class="text-sm">You can customize the appearance using CSS classes for the overlay, drawer, and handle.</p>
+        </div>
+      </div>
+      
+      <button 
+        id="close-drawer-btn" 
+        class="w-full mt-8 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+      >
+        Close Drawer
+      </button>
+    </div>
+  </VaulDrawer>
+</MainLayout>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // Open drawer button
+    const openButton = document.getElementById('open-drawer-btn');
+    if (openButton) {
+      openButton.addEventListener('click', () => {
+        if (window.openVaulDrawer) {
+          window.openVaulDrawer('vaul-drawer');
+        }
+      });
+    }
+    
+    // Close drawer button
+    const closeButton = document.getElementById('close-drawer-btn');
+    if (closeButton) {
+      closeButton.addEventListener('click', () => {
+        if (window.closeVaulDrawer) {
+          window.closeVaulDrawer('vaul-drawer');
+        }
+      });
+    }
+  });
+</script> 
