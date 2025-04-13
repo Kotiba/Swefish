@@ -1,0 +1,17 @@
+id,categoryId,categoryTitle,title,description,price,image,fullWidth,isTopRated,allergens,weightOptions
+item1,grilled,Grilled Fish,Fish Grilled With Lemon Garlic Butter Sauce,Enjoy grilled fish pieces that we catch ourselves boneless and carefully marinated with our special blend of lemon and garlic butter.,331.00,grilledLemonGarlic,true,false,,"250g:231.00,500g:331.00,750g:431.00"
+item2,grilled,Grilled Fish,Grilled Fish With Olive Oil & Lemon,Delicate fish fillets grilled with premium olive oil and fresh lemon for a light Mediterranean flavor.,315.00,grilledOliveOil,false,false,,
+item3,fish-chips,The Fish/Shrimp & Chips Meals,Classic Fish & Chips,Our signature beer-battered fish served with crispy golden chips and homemade tartar sauce.,285.00,fishAndChips,true,false,,
+item4,fish-chips,The Fish/Shrimp & Chips Meals,Shrimp & Chips,Crispy fried shrimp served with our famous chunky chips and special seafood dipping sauce.,310.00,fishAndChips,false,false,,"Small (8 pcs):250.00,Medium (12 pcs):310.00,Large (16 pcs):370.00"
+item5,fried,The Fried,Fried Fish Fillets,Crispy fried fish fillets seasoned with our secret spice blend.,290.00,friedFish,false,false,,
+item6,soup,Soup,Shrimp Bisque Soup,It all starts with an aromatic scent that tickles your appetite with a rich shrimp broth infused with a touch of local garlic leeks and celery. All these flavors are enhanced with a blend of swefish's special spices.,90.00,shrimpBisque,false,false,,
+item7,extras,Extras,Fries Packet,Indulge in the crispiness of our chunky fries cut from potatoes grown on our farms specifically for you and seasoned with SWEFISH's exclusive and unique spice blend.,45.00,fries,false,true,,
+item8,extras,Extras,Swefish Special Bread,Discover the taste of fresh white bread toasted with rich butter aromatic local garlic and fresh parsley.,15.00,specialBread,false,false,,
+item9,extras,Extras,Coleslaw,Fresh cabbage and carrots in a creamy dressing the perfect side for any seafood dish.,35.00,coleslaw,false,false,,
+item10,kids-meal,Kids Meal,Kids Meal,Our freshly caught fish nuggets prepared with the finest ingredients and deep-fried in pure oil are served with own perfectly cooked farm-grown potatoes and a side of ketchup making it an irresistible meal for kids.,175.00,kidsMeal,false,false,,
+item11,drinks,Drinks,Pepsi,320ML Can,45.00,pepsi,false,false,,
+item12,drinks,Drinks,Pepsi Diet,320ML Can,45.00,pepsiDiet,false,false,,
+item13,drinks,Drinks,7 UP,320ML Can,45.00,sevenUp,false,false,,
+item14,drinks,Drinks,Mirinda Orange,320ML Can,45.00,mirinda,false,false,,
+item15,drinks,Drinks,Mineral Water,600 ml,45.00,mineralWater,false,false,,
+item16,drinks,Drinks,Birell Malt Drink Can,Birell non-alcoholic drink malt beverage.,45.00,birell,false,false,, 

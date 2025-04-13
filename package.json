@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
+    "prebuild": "node src/assets/scripts/fetch-menu-data.js",
     "build": "astro check && astro build && node process-html.mjs",
     "preview": "astro preview",
     "astro": "astro"

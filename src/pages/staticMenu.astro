@@ -1,0 +1,128 @@
+---
+import MainLayout from "../layouts/MainLayout.astro";
+import Navbar from "../components/navbars/Navbar3.astro";
+import MenuItem from "../components/MenuItems/MenuItem3.astro";
+import MenuItemDrawer from "../components/MenuItems/MenuItemDrawer";
+import type { MenuData, MenuItem as MenuItemType } from "../utils/types";
+
+// Import the static JSON data instead of fetching from API
+import staticMenuData from "../data_files/menu.json";
+
+// Cast the imported data to our type
+const menuData: MenuData = staticMenuData as MenuData;
+const { menuCategories } = menuData;
+
+// Fallback message if we have no data (this shouldn't happen in production)
+const noDataAvailable = menuCategories.length === 0 || 
+  (menuCategories.length === 1 && menuCategories[0].id === "placeholder");
+
+// Filter out any items with placeholder images that might cause errors
+const processedCategories = menuCategories.map(category => {
+  return {
+    ...category,
+    items: category.items.filter(item => item.image !== "placeholder" && item.image !== "menuPlaceholder")
+  };
+});
+
+// Remove any empty categories after filtering
+const filteredCategories = processedCategories.filter(category => category.items.length > 0);
+
+// Use the filtered data if we have real data, otherwise show the warning
+const displayCategories = noDataAvailable ? [] : filteredCategories;
+---
+
+<MainLayout title="Static Menu">
+  {noDataAvailable || displayCategories.length === 0 ? (
+    <div class="container mx-auto px-4 pt-32 pb-20">
+      <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded relative" role="alert">
+        <strong class="font-bold">Menu data is loading or not available.</strong>
+        <span class="block sm:inline"> The menu data could not be loaded properly during the build process.</span>
+        <p class="mt-2">
+          This could be because:
+          <ul class="list-disc pl-5 mt-1">
+            <li>The build process couldn't connect to Google Sheets</li>
+            <li>The spreadsheet wasn't properly configured</li>
+            <li>The build script encountered an error</li>
+          </ul>
+        </p>
+      </div>
+    </div>
+  ) : (
+    <>
+      <Navbar categories={displayCategories} />
+      
+      <main class="pt-32 pb-20 container mx-auto px-4 md:px-8 max-w-6xl">
+        {displayCategories.map((category) => (
+          <section id={category.id} class="mb-12 scroll-mt-24">
+            <h2 class="text-2xl font-bold mb-6">{category.title}</h2>
+            <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {category.items.map((item: MenuItemType) => (
+                <div 
+                  class="cursor-pointer" 
+                  data-menu-item={JSON.stringify({
+                    ...item,
+                    image: item.image
+                  })}
+                  onclick="handleMenuItemClick(this)"
+                >
+                  <MenuItem {...item} />
+                </div>
+              ))}
+            </div>
+          </section>
+        ))}
+      </main>
+
+      <MenuItemDrawer client:load />
+    </>
+  )}
+</MainLayout>
+
+<script>
+  import type { MenuItem } from '../utils/types';
+
+  declare global {
+    interface Window {
+      handleMenuItemClick: (element: HTMLElement) => void;
+      updateDrawerState: (item: MenuItem | null, isOpen: boolean) => void;
+    }
+  }
+
+  // Make the click handler available globally
+  window.handleMenuItemClick = (element: HTMLElement) => {
+    const itemData = element.getAttribute('data-menu-item');
+    if (itemData && window.updateDrawerState) {
+      const item = JSON.parse(itemData) as MenuItem;
+      window.updateDrawerState(item, true);
+    }
+  };
+
+  class MenuItemDrawerElement extends HTMLElement {
+    constructor() {
+      super();
+      this.render();
+    }
+
+    static get observedAttributes(): string[] {
+      return ['item', 'is-open'];
+    }
+
+    attributeChangedCallback(name: string, oldValue: string | null, newValue: string | null) {
+      if (oldValue !== newValue) {
+        this.render();
+      }
+    }
+
+    render() {
+      const itemAttr = this.getAttribute('item');
+      const item = itemAttr ? (JSON.parse(itemAttr) as MenuItem) : null;
+      const isOpen = this.getAttribute('is-open') === 'true';
+      
+      if (window.updateDrawerState) {
+        window.updateDrawerState(item, isOpen);
+      }
+    }
+  }
+
+  customElements.define('menu-item-drawer', MenuItemDrawerElement);
+</script> 
