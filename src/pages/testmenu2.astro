@@ -2,13 +2,14 @@
 import MainLayout from "../layouts/MainLayout.astro";
 import Navbar from "../components/navbars/Navbar2.astro";
 import MenuItem from "../components/MenuItems/MenuItem2.astro";
+import MenuItemDrawer from "../components/MenuItems/MenuItemDrawer";
 import menuData from "../data/menu.json";
 import type { MenuData, MenuItem as MenuItemType } from "../utils/types";
 
 const { menuCategories } = menuData as MenuData;
 ---
 
-<MainLayout title="Test2">
+<MainLayout title="Test3">
   <Navbar categories={menuCategories} />
   
   <main class="pt-32 pb-20 container mx-auto px-4 md:px-8 max-w-6xl">
@@ -17,10 +18,70 @@ const { menuCategories } = menuData as MenuData;
         <h2 class="text-2xl font-bold mb-6">{category.title}</h2>
         <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {category.items.map((item: MenuItemType) => (
-            <MenuItem {...item} />
+            <div 
+              class="cursor-pointer" 
+              data-menu-item={JSON.stringify({
+                ...item,
+                image: item.image
+              })}
+              onclick="handleMenuItemClick(this)"
+            >
+              <MenuItem {...item} />
+            </div>
           ))}
         </div>
       </section>
     ))}
   </main>
+
+  <MenuItemDrawer client:load />
 </MainLayout>
+
+<script>
+  import type { MenuItem } from '../utils/types';
+
+  declare global {
+    interface Window {
+      handleMenuItemClick: (element: HTMLElement) => void;
+      updateDrawerState: (item: MenuItem | null, isOpen: boolean) => void;
+    }
+  }
+
+  // Make the click handler available globally
+  window.handleMenuItemClick = (element: HTMLElement) => {
+    const itemData = element.getAttribute('data-menu-item');
+    if (itemData && window.updateDrawerState) {
+      const item = JSON.parse(itemData) as MenuItem;
+      window.updateDrawerState(item, true);
+    }
+  };
+
+  class MenuItemDrawerElement extends HTMLElement {
+    constructor() {
+      super();
+      this.render();
+    }
+
+    static get observedAttributes(): string[] {
+      return ['item', 'is-open'];
+    }
+
+    attributeChangedCallback(name: string, oldValue: string | null, newValue: string | null) {
+      if (oldValue !== newValue) {
+        this.render();
+      }
+    }
+
+    render() {
+      const itemAttr = this.getAttribute('item');
+      const item = itemAttr ? (JSON.parse(itemAttr) as MenuItem) : null;
+      const isOpen = this.getAttribute('is-open') === 'true';
+      
+      if (window.updateDrawerState) {
+        window.updateDrawerState(item, isOpen);
+      }
+    }
+  }
+
+  customElements.define('menu-item-drawer', MenuItemDrawerElement);
+</script>
