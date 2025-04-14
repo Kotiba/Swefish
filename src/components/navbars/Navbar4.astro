@@ -1,0 +1,443 @@
+---
+import BrandLogo from "../BrandLogo.astro";
+const { categories } = Astro.props;
+
+// Define types for our menu categories
+interface MenuCategory {
+  id: string;
+  title: string;
+  items: any[];
+}
+---
+
+<header class="fixed top-0 left-0 right-0 z-20 bg-swefish-yellow px-4 py-3 flex items-center justify-start border-b border-black/7">
+  <BrandLogo class="h-8 w-auto" />
+</header>
+
+<!-- Menu navigation with tabs -->
+<nav class="fixed top-[52px] left-0 right-0 z-10 bg-swefish-yellow">
+  <div class="tab-bar-container">
+    <!-- Menu button - absolutely positioned to prevent any movement -->
+    <div class="hamburger-container">
+      <button id="hamburger-menu" class="p-3 transition-colors hover:text-black focus:outline-none">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="4" x2="20" y1="12" y2="12" />
+          <line x1="4" x2="20" y1="6" y2="6" />
+          <line x1="4" x2="20" y1="18" y2="18" />
+        </svg>
+      </button>
+    </div>
+    
+    <!-- Scrollable tabs container - this is hidden when menu opens -->
+    <div class="tabs-container flex overflow-x-auto scrollbar-hide pb-2 relative transition-opacity duration-200">
+      {categories.map((category: MenuCategory, index: number) => (
+        <a 
+          href={`#${category.id}`}
+          class="tab-link flex-shrink-0 px-4 py-3 text-base font-medium whitespace-nowrap transition-all relative flex flex-col items-center justify-center h-full"
+          data-section-id={category.id}
+        >
+          <span class="tab-text">{category.title}</span>
+          <span class="tab-indicator absolute bottom-0 h-[2px] bg-black rounded-sm"></span>
+        </a>
+      ))}
+    </div>
+  </div>
+  
+  <!-- Vertical menu (hidden by default) - positioned directly UNDER the tab bar -->
+  <div id="vertical-menu" class="vertical-menu w-full bg-swefish-yellow shadow-md border-t border-black/7">
+    <div class="py-2 px-4">
+      {categories.map((category: MenuCategory) => (
+        <a 
+          href={`#${category.id}`}
+          class="block w-full text-left py-3 border-b border-black/5 hover:bg-black/5"
+          data-section-id={category.id}
+        >
+          {category.title}
+        </a>
+      ))}
+    </div>
+  </div>
+</nav>
+
+<style>
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Hide scrollbar for IE, Edge and Firefox */
+  .scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+  
+  /* Set active state for tab links */
+  .tab-link {
+    color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+    font-weight: 600; /* Make all tabs bold */
+    padding-bottom: 10px; /* Add extra padding for indicator */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+  }
+  
+  .tab-link[data-active="true"] {
+    color: black;
+  }
+  
+  /* Active tab feedback */
+  .tab-link {
+    transition: color 0.2s ease;
+  }
+  
+  /* Tab indicator styles */
+  .tab-indicator {
+    width: 0; /* Start with zero width */
+    opacity: 0;
+    transition: width 0.3s ease, opacity 0.3s ease;
+  }
+  
+  .tab-link[data-active="true"] .tab-indicator {
+    width: 100%; /* Same width as the text */
+    opacity: 1;
+  }
+  
+  /* Position indicator relative to text element for proper width */
+  .tab-text {
+    position: relative;
+    display: inline-block;
+    margin-top: 2px; /* Adjusted margin to move text down */
+  }
+  
+  .tab-indicator {
+    bottom: 0;
+    left: 0; 
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  
+  /* Vertical menu animation */
+  .vertical-menu {
+    transform: translateY(-20px);
+    opacity: 0;
+    visibility: hidden;
+    transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), 
+                opacity 0.2s ease,
+                visibility 0s linear 0.3s;
+    height: 0;
+    overflow: hidden;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 30;
+  }
+  
+  .vertical-menu.open {
+    transform: translateY(0);
+    opacity: 1;
+    visibility: visible;
+    transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), 
+                opacity 0.2s ease,
+                visibility 0s linear 0s;
+    height: auto;
+  }
+  
+  /* Absolutely position the hamburger to prevent any movement */
+  .hamburger-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 56px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    border-right: 1px solid rgba(0, 0, 0, 0.07); /* border-black/7 */
+  }
+  
+  /* Ensure tab bar maintains consistent height */
+  .tab-bar-container {
+    position: relative;
+    height: 56px; /* Fixed height to match tabs */
+    will-change: transform; /* Optimize for animation performance */
+  }
+  
+  /* Add padding to tabs container to make room for hamburger */
+  .tabs-container {
+    position: absolute;
+    left: 56px; /* Match hamburger container width */
+    right: 0;
+    padding-left: 0; /* Remove the previous padding */
+    overflow-x: auto;
+    
+    /* Basic scrolling behavior - no fancy effects that could cause glitches */
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    overscroll-behavior-x: contain; /* Prevents page refresh on horizontal overscroll */
+    will-change: scroll-position; /* Optimize scrolling performance */
+  }
+  
+  /* Fade indicator for scroll edges */
+  .tab-bar-container::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    width: 30px;
+    background: linear-gradient(to right, rgba(0,0,0,0), rgba(0,0,0,0.1));
+    pointer-events: none;
+    z-index: 5;
+  }
+  
+  /* Native smooth scrolling */
+  :global(html) {
+    scroll-behavior: smooth;
+  }
+  
+  :global(section[id]) {
+    scroll-margin-top: 110px; /* Adjust based on header + nav height */
+  }
+</style>
+
+<script>
+  // Simple script for handling navigation and scrollspy
+  document.addEventListener('DOMContentLoaded', () => {
+    const hamburgerBtn = document.getElementById('hamburger-menu');
+    const verticalMenu = document.getElementById('vertical-menu');
+    const tabsContainer = document.querySelector('.tabs-container');
+    const tabLinks = document.querySelectorAll('.tab-link');
+    const sections = Array.from(document.querySelectorAll('section[id]'));
+    let isVerticalMenuOpen = false;
+    let activeNavigation = false;
+    
+    // Toggle vertical menu
+    function toggleVerticalMenu() {
+      isVerticalMenuOpen = !isVerticalMenuOpen;
+      
+      if (isVerticalMenuOpen) {
+        // Hide tabs container
+        tabsContainer?.classList.add('invisible', 'opacity-0');
+        
+        // Show vertical menu
+        verticalMenu?.classList.add('open');
+        
+        // Highlight hamburger button
+        hamburgerBtn?.classList.add('text-black');
+      } else {
+        // Show tabs container
+        tabsContainer?.classList.remove('invisible', 'opacity-0');
+        
+        // Hide vertical menu
+        verticalMenu?.classList.remove('open');
+        
+        // Reset hamburger button
+        hamburgerBtn?.classList.remove('text-black');
+      }
+    }
+    
+    // Hamburger menu click event
+    hamburgerBtn?.addEventListener('click', toggleVerticalMenu);
+    
+    // Close vertical menu when clicking a link
+    verticalMenu?.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        if (isVerticalMenuOpen) {
+          toggleVerticalMenu();
+        }
+      });
+    });
+    
+    // Scroll tab into view when it becomes active
+    function scrollTabIntoView(tabElement: Element): void {
+      if (!tabsContainer) return;
+      
+      const containerWidth = tabsContainer.clientWidth;
+      const tabRect = tabElement.getBoundingClientRect();
+      const containerRect = tabsContainer.getBoundingClientRect();
+      
+      // Only scroll if tab is not fully visible
+      if (tabRect.left < containerRect.left || tabRect.right > containerRect.right) {
+        // Calculate position to put tab in the center
+        const leftPosition = tabElement.getBoundingClientRect().left + 
+                             tabsContainer.scrollLeft - 
+                             containerRect.left -
+                             (containerWidth / 2) + 
+                             (tabRect.width / 2);
+        
+        // Use requestAnimationFrame for smoother animation
+        requestAnimationFrame(() => {
+          tabsContainer.scrollTo({
+            left: leftPosition,
+            behavior: 'smooth'
+          });
+        });
+      }
+    }
+    
+    // Update indicator widths based on text content
+    function updateIndicatorWidths() {
+      tabLinks.forEach(link => {
+        const textElement = link.querySelector('.tab-text');
+        const indicator = link.querySelector('.tab-indicator');
+        
+        if (textElement && indicator) {
+          // Set indicator width based on text width
+          const textWidth = textElement.getBoundingClientRect().width;
+          (indicator as HTMLElement).style.width = `${textWidth}px`;
+          
+          // Initially hide indicator for non-active tabs
+          if (link.getAttribute('data-active') !== 'true') {
+            (indicator as HTMLElement).style.width = '0px';
+          }
+        }
+      });
+    }
+    
+    // Update indicator widths on initial load
+    updateIndicatorWidths();
+    
+    // Override active tab style updates
+    function updateActiveTab(): void {
+      if (activeNavigation) return; // Skip during active navigation
+      
+      // Find the section that's most visible in the viewport
+      let mostVisibleSection: Element | null = null;
+      let maxVisibility = 0;
+      
+      const navbarHeight = 110; // Approximate header + nav height
+      
+      sections.forEach(section => {
+        const rect = section.getBoundingClientRect();
+        // Calculate how much of the section is visible
+        const visibleHeight = Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, navbarHeight);
+        const visibleRatio = visibleHeight / rect.height;
+        
+        if (visibleRatio > maxVisibility && visibleRatio > 0.1) { // At least 10% visible
+          maxVisibility = visibleRatio;
+          mostVisibleSection = section;
+        }
+      });
+      
+      if (mostVisibleSection) {
+        // Type assertion to tell TypeScript this is an HTMLElement with an id
+        const sectionElement = mostVisibleSection as HTMLElement;
+        const sectionId = sectionElement.id;
+        
+        if (sectionId) {
+          // Find the active tab link
+          const activeTab = document.querySelector(`.tab-link[data-section-id="${sectionId}"]`);
+          
+          if (activeTab) {
+            // Update active states
+            tabLinks.forEach(link => {
+              const isActive = link === activeTab;
+              if (isActive !== (link.getAttribute('data-active') === 'true')) {
+                link.setAttribute('data-active', isActive ? 'true' : 'false');
+                
+                // Update indicator width
+                const indicator = link.querySelector('.tab-indicator');
+                const textElement = link.querySelector('.tab-text');
+                
+                if (indicator && textElement) {
+                  const textWidth = textElement.getBoundingClientRect().width;
+                  (indicator as HTMLElement).style.width = isActive ? `${textWidth}px` : '0px';
+                  (indicator as HTMLElement).style.opacity = isActive ? '1' : '0';
+                }
+                
+                // Only scroll the tab into view if it's newly activated
+                if (isActive) {
+                  scrollTabIntoView(link);
+                }
+              }
+            });
+          }
+        }
+      }
+    }
+    
+    // Click handler for tab links
+    tabLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        
+        const sectionId = link.getAttribute('data-section-id');
+        if (!sectionId) return;
+        
+        // Mark active link immediately for better UX
+        tabLinks.forEach(tab => {
+          const wasActive = tab.getAttribute('data-active') === 'true';
+          const willBeActive = tab === link;
+          
+          if (wasActive !== willBeActive) {
+            tab.setAttribute('data-active', willBeActive ? 'true' : 'false');
+            
+            // Update indicator width
+            const indicator = tab.querySelector('.tab-indicator');
+            const textElement = tab.querySelector('.tab-text');
+            
+            if (indicator && textElement) {
+              const textWidth = textElement.getBoundingClientRect().width;
+              (indicator as HTMLElement).style.width = willBeActive ? `${textWidth}px` : '0px';
+              (indicator as HTMLElement).style.opacity = willBeActive ? '1' : '0';
+            }
+          }
+        });
+        
+        // Get section and scroll to it
+        const targetSection = document.getElementById(sectionId);
+        if (targetSection) {
+          // Set navigation lock
+          activeNavigation = true;
+          
+          // Simple scroll to target section
+          const navbarHeight = 110;
+          const targetPosition = targetSection.getBoundingClientRect().top + window.scrollY - navbarHeight;
+          
+          window.scrollTo({
+            top: targetPosition,
+            behavior: 'smooth'
+          });
+          
+          // Release navigation lock after animation completes
+          setTimeout(() => {
+            activeNavigation = false;
+            // Update active tab after scrolling is complete
+            updateActiveTab();
+          }, 500); // Adjust based on scroll animation duration
+        }
+      });
+    });
+    
+    // Throttle function to limit execution frequency
+    function throttle<T extends (...args: any[]) => any>(func: T, limit: number): (...args: Parameters<T>) => void {
+      let inThrottle: boolean | undefined;
+      return function(this: any, ...args: Parameters<T>): void {
+        const context = this;
+        if (!inThrottle) {
+          func.apply(context, args);
+          inThrottle = true;
+          setTimeout(() => inThrottle = false, limit);
+        }
+      };
+    }
+    
+    // Use throttled scroll event for updating active tab
+    window.addEventListener('scroll', throttle(updateActiveTab, 100));
+    
+    // Also update on resize
+    window.addEventListener('resize', throttle(() => {
+      updateIndicatorWidths();
+      updateActiveTab();
+    }, 100));
+    
+    // Initial call to set active tab
+    updateActiveTab();
+  });
+</script>
+
