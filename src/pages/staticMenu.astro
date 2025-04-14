@@ -12,6 +12,21 @@ import staticMenuData from "../data_files/menu.json";
 const menuData: MenuData = staticMenuData as MenuData;
 const { menuCategories } = menuData;
 
+// Create a test item with fullWidth to showcase the horizontal layout
+const testFullWidthItem = {
+  title: "Test Full Width Item - Horizontal Layout",
+  description: "This is a test item to showcase the horizontal card layout with the image on the left and content on the right. This should span the full width of two columns in the grid.",
+  price: 365,
+  image: "grilledLemonGarlic",
+  fullWidth: true,
+  isTopRated: true,
+  hasMultiplePrices: true,
+  weightOptions: [
+    { weight: "250 gm", price: 365 },
+    { weight: "500 gm", price: 684 }
+  ]
+};
+
 // Fallback message if we have no data (this shouldn't happen in production)
 const noDataAvailable = menuCategories.length === 0 || 
   (menuCategories.length === 1 && menuCategories[0].id === "placeholder");
@@ -52,13 +67,65 @@ const displayCategories = noDataAvailable ? [] : filteredCategories;
       <Navbar categories={displayCategories} />
       
       <main class="pt-32 pb-20 container mx-auto px-4 md:px-8 max-w-7xl">
+        <!-- Test Section for Full Width Layout -->
+        <section class="mb-12">
+          <h2 class="text-2xl font-bold mb-6">Test Full Width Layout</h2>
+          <div class="grid gap-6 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            <div 
+              class="cursor-pointer col-span-2" 
+              data-menu-item={JSON.stringify({
+                ...testFullWidthItem,
+                image: testFullWidthItem.image
+              })}
+              onclick="handleMenuItemClick(this)"
+            >
+              <MenuItem {...testFullWidthItem} />
+            </div>
+            <!-- Add a regular item next to the full-width item -->
+            <div 
+              class="cursor-pointer" 
+              data-menu-item={JSON.stringify({
+                title: "Regular Item",
+                description: "This is a regular item next to a full-width item",
+                price: 45,
+                image: "fries"
+              })}
+              onclick="handleMenuItemClick(this)"
+            >
+              <MenuItem 
+                title="Regular Item" 
+                description="This is a regular item next to a full-width item" 
+                price={45}
+                image="fries"
+              />
+            </div>
+            <div 
+              class="cursor-pointer" 
+              data-menu-item={JSON.stringify({
+                title: "Another Regular Item",
+                description: "Another regular item to demonstrate layout",
+                price: 25,
+                image: "pepsi"
+              })}
+              onclick="handleMenuItemClick(this)"
+            >
+              <MenuItem 
+                title="Another Regular Item" 
+                description="Another regular item to demonstrate layout" 
+                price={25}
+                image="pepsi"
+              />
+            </div>
+          </div>
+        </section>
+        
         {displayCategories.map((category) => (
           <section id={category.id} class="mb-12 scroll-mt-24">
             <h2 class="text-2xl font-bold mb-6">{category.title}</h2>
             <div class="grid gap-6 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
               {category.items.map((item: MenuItemType) => (
                 <div 
-                  class="cursor-pointer" 
+                  class={`cursor-pointer ${item.fullWidth ? 'col-span-2' : ''}`}
                   data-menu-item={JSON.stringify({
                     ...item,
                     image: item.image,

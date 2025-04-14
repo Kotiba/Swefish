@@ -9,7 +9,7 @@
             "description": "Enjoy grilled fish pieces that we catch ourselves, boneless and carefully marinated with our special swefish marinade, covered in a delicious creamy sauce of fresh butter, refreshing lemon and rich local garlic flavour. We also offer extra lemon, butter and garlic sauce for free. Choose the appropriate weight of fish from this variety.",
             "price": 365,
             "image": "grilledLemonGarlic",
-            "fullWidth": false,
+            "fullWidth": true,
             "isTopRated": false,
             "hasMultiplePrices": true,
             "weightOptions": [
