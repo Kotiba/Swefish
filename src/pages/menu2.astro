@@ -57,39 +57,44 @@ const verticalLayoutCategories = ['drinks', 'sauces'];
       <main class="pt-32 pb-20 container mx-auto px-4 md:px-8 max-w-7xl">
 
         
-        {displayCategories.map((category) => (
-          <section id={category.id} class="mb-12 scroll-mt-24">
-            <h2 class="text-2xl font-bold mb-6">{category.title}</h2>
-            <div class="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-              {category.items.map((item: MenuItemType) => {
-                // Use vertical layout for drinks and sauces categories, horizontal for others
-                const useVerticalLayout = verticalLayoutCategories.includes(category.id);
-                
-                return (
-                  <div 
-                    class="cursor-pointer"
-                    data-menu-item={JSON.stringify({
-                      ...item,
-                      image: item.image,
-                      price: item.price === undefined ? null : item.price,
-                      weightOptions: item.weightOptions?.map(option => ({
-                        weight: option.weight,
-                        price: typeof option.price === 'number' ? option.price : 0
-                      }))
-                    })}
-                    onclick="handleMenuItemClick(this)"
-                  >
-                    {useVerticalLayout ? (
-                      <MenuItemVertical {...item} />
-                    ) : (
-                      <MenuItemHorizontal {...item} />
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-        ))}
+        {displayCategories.map((category) => {
+          // Use vertical layout for drinks and sauces categories, horizontal for others
+          const useVerticalLayout = verticalLayoutCategories.includes(category.id);
+          
+          return (
+            <section id={category.id} class="mb-12 scroll-mt-24">
+              <h2 class="text-2xl font-bold mb-6">{category.title}</h2>
+              <div class={useVerticalLayout 
+                ? "grid gap-6 grid-cols-2 md:grid-cols-3 lg:grid-cols-4" 
+                : "grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+              }>
+                {category.items.map((item: MenuItemType) => {
+                  return (
+                    <div 
+                      class="cursor-pointer"
+                      data-menu-item={JSON.stringify({
+                        ...item,
+                        image: item.image,
+                        price: item.price === undefined ? null : item.price,
+                        weightOptions: item.weightOptions?.map(option => ({
+                          weight: option.weight,
+                          price: typeof option.price === 'number' ? option.price : 0
+                        }))
+                      })}
+                      onclick="handleMenuItemClick(this)"
+                    >
+                      {useVerticalLayout ? (
+                        <MenuItemVertical {...item} />
+                      ) : (
+                        <MenuItemHorizontal {...item} />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          );
+        })}
       </main>
 
       <MenuItemDrawer client:load />
