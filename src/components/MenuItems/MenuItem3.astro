@@ -48,26 +48,27 @@ const imageSrc = getImage(image);
 
 {fullWidth ? (
   <div class="col-span-2">
-    <div class="bg-white rounded-xl overflow-hidden border border-gray-200 shadow-sm hover:bg-[#FAFAFA]">
-      <div class="flex gap-4 p-4">
-        <div class="w-28 h-28 sm:w-36 sm:h-36 md:w-56 md:h-56 bg-gray-200 flex-shrink-0 rounded-lg overflow-hidden flex items-center justify-center">
+    <div class="bg-white rounded-xl overflow-hidden border border-gray-200 shadow-sm hover:bg-[#FAFAFA] h-full">
+      <div class="flex flex-row">
+        <div class="w-1/3 bg-gray-200 overflow-hidden">
           <Image
             src={imageSrc}
             alt={title}
-            class="w-full h-auto max-h-full object-contain"
+            class="w-full h-full object-cover"
             draggable={false}
             loading="eager"
             format="avif"
           />
         </div>
-        <div class="flex-1 min-w-0">
-          <div class="flex items-start gap-2 flex-wrap">
-            <h3 class="text-base sm:text-lg font-medium text-gray-900 break-words">{title}</h3>
+        <div class="flex-1 p-4 flex flex-col">
+          <div class="flex items-start gap-2 flex-wrap mb-2">
+            <h3 class="text-lg font-medium text-gray-900">{title}</h3>
             {isTopRated && <Tag text="Top rated" />}
           </div>
-          <p class="text-sm sm:text-base text-gray-600 mt-1 line-clamp-2">{description}</p>
           
-          <p class="text-sm font-medium text-gray-900 mt-2">
+          <p class="text-sm text-gray-600 mb-3">{description}</p>
+          
+          <p class="text-sm font-medium text-gray-900 mt-auto">
             {displayPrice !== null 
               ? (hasMultiplePrices || hasWeightOptions ? `From EGP ${formattedPrice}` : `EGP ${formattedPrice}`) 
               : 'Price on Selection'}
