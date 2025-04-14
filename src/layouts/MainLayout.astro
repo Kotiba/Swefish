@@ -30,15 +30,24 @@ We set the language of the page to English and add classes for scrollbar and scr
     <!-- Define the title of the page -->
     <title>{title}</title>
     <script is:inline>
-      // Script to handle dark mode. It will check if the theme is stored in localStorage or if dark theme is preferred by system settings
-      if (
-        localStorage.getItem("hs_theme") === "dark" ||
-        (!("hs_theme" in localStorage) &&
-          window.matchMedia("(prefers-color-scheme: dark)").matches)
-      ) {
-        document.documentElement.classList.add("dark");
-      } else {
-        document.documentElement.classList.remove("dark");
+      // DARK MODE DISABLED
+      // Original dark mode script (currently disabled):
+      // if (
+      //   localStorage.getItem("hs_theme") === "dark" ||
+      //   (!("hs_theme" in localStorage) &&
+      //     window.matchMedia("(prefers-color-scheme: dark)").matches)
+      // ) {
+      //   document.documentElement.classList.add("dark");
+      // } else {
+      //   document.documentElement.classList.remove("dark");
+      // }
+      
+      // Force light mode
+      document.documentElement.classList.remove("dark");
+      
+      // Clean up any existing dark mode preference
+      if(localStorage.getItem("hs_theme") === "dark") {
+        localStorage.setItem("hs_theme", "light");
       }
     </script>
     <script>
@@ -46,7 +55,7 @@ We set the language of the page to English and add classes for scrollbar and scr
     </script>
   </head>
   <body
-    class="bg-white selection:bg-yellow-400 font-inter selection:text-neutral-700 dark:bg-neutral-800"
+    class="bg-white selection:bg-yellow-400 font-inter selection:text-neutral-700"
   >
     <!--
     Setting up the main structure of the page.

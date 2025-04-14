@@ -10,8 +10,6 @@ export const onRequest = defineMiddleware((context, next) => {
   if (
     url.pathname === "/" || 
     url.pathname === "/index.html" || 
-    url.pathname === "/tempDemo" ||
-    url.pathname === "/tempDemo/" ||
     url.pathname.startsWith("/assets/") ||
     url.pathname.startsWith("/_astro/") ||
     url.pathname.startsWith("/images/") ||
