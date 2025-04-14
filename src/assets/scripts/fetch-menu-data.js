@@ -3,7 +3,7 @@ import path from 'path';
 
 async function fetchMenuData() {
   const SHEET_ID = "1q1XigLb1Z_WM1z_a_0-ISqPvkyG9VmsJmD-IlpCWBVk";
-  const SHEET_NAME = "Menu";
+  const SHEET_NAME = "menu";
   const API_URL = `https://opensheet.elk.sh/${SHEET_ID}/${SHEET_NAME}`;
   const OUTPUT_FILE = path.resolve(process.cwd(), 'src/data_files/menu.json');
   
