@@ -37,46 +37,48 @@ export default function MenuItemDrawer() {
               <div aria-hidden className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-gray-300 mb-8" />
               {selectedItem && (
                 <>
-                  <div className="w-full aspect-[4/3] rounded-lg overflow-hidden bg-gray-100">
-                    <img 
-                      src={`/src/images/products/${selectedItem.image}.jpg`}
-                      alt={selectedItem.title}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.onerror = null;
-                        console.error('Failed to load image:', selectedItem.image);
-                      }}
-                    />
-                  </div>
                   <Drawer.Title className="font-medium text-xl text-gray-900">
                     {selectedItem.title}
                   </Drawer.Title>
-                  <div className="text-yellow-600 font-semibold">
-                    {selectedItem.price !== undefined && selectedItem.price !== null 
-                      ? (selectedItem.hasMultiplePrices 
-                          ? `From EGP ${formatPrice(selectedItem.price)}` 
-                          : `EGP ${formatPrice(selectedItem.price)}`) 
-                      : 'Price on Selection'}
-                  </div>
-                  <p className="text-gray-600">
+                  
+                  {/* Show base price only if there are no weight options */}
+                  {(!selectedItem.weightOptions || selectedItem.weightOptions.length === 0) && (
+                    <div className="text-yellow-600 font-semibold">
+                      {selectedItem.price !== undefined && selectedItem.price !== null 
+                        ? `EGP ${formatPrice(selectedItem.price)}` 
+                        : 'Price on Selection'}
+                    </div>
+                  )}
+                  
+                  <p className="text-gray-600 mt-2">
                     {selectedItem.description}
                   </p>
+                  
                   {selectedItem.allergens && selectedItem.allergens.length > 0 && (
-                    <div className="text-gray-600">
+                    <div className="text-gray-600 mt-3">
                       <strong>Allergens:</strong> {selectedItem.allergens.join(', ')}
                     </div>
                   )}
+                  
+                  {/* Improved Weight Options UI */}
                   {selectedItem.weightOptions && selectedItem.weightOptions.length > 0 && (
-                    <div className="text-gray-600">
-                      <strong>Available Sizes:</strong>
-                      {selectedItem.weightOptions.map((option) => (
-                        <span key={option.weight} className="ml-2">
-                          {option.weight} {option.price !== undefined 
-                            ? `(EGP ${formatPrice(option.price)})` 
-                            : ''}
-                        </span>
-                      ))}
+                    <div className="mt-4">
+                      <h3 className="font-medium text-gray-800 mb-2">Options:</h3>
+                      <div className="grid grid-cols-1 gap-2">
+                        {selectedItem.weightOptions.map((option) => (
+                          <div 
+                            key={option.weight} 
+                            className="border border-gray-200 rounded-lg p-3 flex justify-between items-center hover:bg-gray-50"
+                          >
+                            <span className="font-medium text-gray-700">{option.weight}</span>
+                            <span className="text-yellow-600 font-semibold">
+                              {option.price !== undefined 
+                                ? `EGP ${formatPrice(option.price)}` 
+                                : 'Price on Selection'}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   )}
                 </>

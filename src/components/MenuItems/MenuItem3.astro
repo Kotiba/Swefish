@@ -15,16 +15,32 @@ const {
   hasMultiplePrices = false
 } = Astro.props;
 
+// Check if we have weight-based pricing
+const hasWeightOptions = weightOptions?.length > 0;
+
+// Get the lowest price from weight options if available
+let lowestWeightPrice: number | null = null;
+if (hasWeightOptions) {
+  lowestWeightPrice = weightOptions.reduce((lowest: number | null, option: WeightOption) => 
+    option.price !== undefined && (lowest === null || option.price < lowest) 
+      ? option.price 
+      : lowest, 
+    null as number | null
+  );
+}
+
+// Use base price or lowest weight price
+const displayPrice = price !== undefined && price !== null 
+  ? price 
+  : lowestWeightPrice;
+
 // Format price to have 2 decimal places only when needed
 const formatPrice = (price: number | null | undefined): string => {
   if (price === null || price === undefined) return 'Price on Selection';
   return Number.isInteger(price) ? price.toString() : price.toFixed(2);
 };
 
-const formattedPrice = price !== undefined ? formatPrice(price) : 'Price on Selection';
-
-// Check if we have weight-based pricing
-const hasWeightOptions = weightOptions?.length > 0;
+const formattedPrice = displayPrice !== undefined ? formatPrice(displayPrice) : 'Price on Selection';
 
 // Get the actual image from the image reference
 const imageSrc = getImage(image);
@@ -51,23 +67,11 @@ const imageSrc = getImage(image);
           </div>
           <p class="text-sm sm:text-base text-gray-600 mt-1 line-clamp-2">{description}</p>
           
-          {hasWeightOptions ? (
-            <div class="mt-3 flex flex-wrap gap-2">
-              {weightOptions.map((option: WeightOption) => (
-                <div class="px-3 py-1 bg-gray-50 rounded-full text-xs sm:text-sm">
-                  <span class="font-medium text-gray-800">{option.weight}</span>
-                  <span class="mx-1 text-gray-400">•</span>
-                  <span class="text-gray-900">EGP {option.price !== undefined ? (Number.isInteger(option.price) ? option.price : option.price.toFixed(2)) : '0'}</span>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p class="text-sm font-medium text-gray-900 mt-2">
-              {price !== undefined && price !== null 
-                ? (hasMultiplePrices ? `From EGP ${formattedPrice}` : `EGP ${formattedPrice}`) 
-                : 'Price on Selection'}
-            </p>
-          )}
+          <p class="text-sm font-medium text-gray-900 mt-2">
+            {displayPrice !== null 
+              ? (hasMultiplePrices || hasWeightOptions ? `From EGP ${formattedPrice}` : `EGP ${formattedPrice}`) 
+              : 'Price on Selection'}
+          </p>
         </div>
       </div>
     </div>
@@ -92,23 +96,11 @@ const imageSrc = getImage(image);
     <div class="p-3">
       <h3 class="font-medium text-sm">{title}</h3>
       
-      {hasWeightOptions ? (
-        <div class="mt-2 flex flex-wrap gap-1">
-          {weightOptions.map((option: WeightOption) => (
-            <div class="px-2 py-0.5 bg-gray-50 rounded-full text-xs mt-1">
-              <span class="font-medium text-gray-800">{option.weight}</span>
-              <span class="mx-0.5 text-gray-400">•</span>
-              <span class="text-gray-900">EGP {option.price !== undefined ? (Number.isInteger(option.price) ? option.price : option.price.toFixed(2)) : '0'}</span>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <p class="text-sm font-medium text-gray-900 mt-1">
-          {price !== undefined && price !== null 
-            ? (hasMultiplePrices ? `From EGP ${formattedPrice}` : `EGP ${formattedPrice}`) 
-            : 'Price on Selection'}
-        </p>
-      )}
+      <p class="text-sm font-medium text-gray-900 mt-1">
+        {displayPrice !== null 
+          ? (hasMultiplePrices || hasWeightOptions ? `From EGP ${formattedPrice}` : `EGP ${formattedPrice}`) 
+          : 'Price on Selection'}
+      </p>
     </div>
   </div>
 )}
