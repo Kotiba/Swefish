@@ -43,7 +43,7 @@ export default function MenuItemDrawer() {
                   
                   {/* Show base price only if there are no weight options */}
                   {(!selectedItem.weightOptions || selectedItem.weightOptions.length === 0) && (
-                    <div className="text-yellow-600 font-semibold">
+                    <div className="text-swefish-blue font-semibold">
                       {selectedItem.price !== undefined && selectedItem.price !== null 
                         ? `EGP ${formatPrice(selectedItem.price)}` 
                         : 'Price on Selection'}
@@ -71,7 +71,7 @@ export default function MenuItemDrawer() {
                             className="border border-gray-200 rounded-lg p-3 flex justify-between items-center hover:bg-gray-50"
                           >
                             <span className="font-medium text-gray-700">{option.weight}</span>
-                            <span className="text-yellow-600 font-semibold">
+                            <span className="text-swefish-blue font-semibold">
                               {option.price !== undefined 
                                 ? `EGP ${formatPrice(option.price)}` 
                                 : 'Price on Selection'}
