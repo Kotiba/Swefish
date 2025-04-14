@@ -38,9 +38,9 @@ const formattedPrice = displayPrice !== undefined ? formatPrice(displayPrice) : 
 const imageSrc = getImage(image);
 ---
 
-<div class="bg-white rounded-xl overflow-hidden border border-gray-200 shadow-sm hover:bg-[#FAFAFA] h-24 sm:h-full">
+<div class="bg-white rounded-xl overflow-hidden border border-gray-200 shadow-sm hover:bg-[#FAFAFA] h-32">
   <div class="flex flex-row h-full">
-    <div class="w-2/5 relative">
+    <div class="w-1/3 relative">
       <Image
         src={imageSrc}
         alt={title}
@@ -51,12 +51,13 @@ const imageSrc = getImage(image);
       />
     </div>
     
-    <div class="p-4 w-3/5">
-      <h3 class="font-medium text-base mb-2">{title}</h3>
+    <div class="py-3 px-4 w-2/3 flex flex-col justify-between">
+      <div>
+        <h3 class="font-medium text-base text-gray-800 mb-1 line-clamp-1">{title}</h3>
+        <p class="text-xs text-gray-500 line-clamp-2">{description}</p>
+      </div>
       
-      <p class="text-sm text-gray-500 mb-auto line-clamp-1">{description}</p>
-      
-      <p class="text-sm font-medium text-gray-900 mt-2">
+      <p class="text-sm font-medium text-gray-900 mt-1">
         {displayPrice !== null 
           ? (hasMultiplePrices || hasWeightOptions ? `From EGP ${formattedPrice}` : `EGP ${formattedPrice}`) 
           : 'Price on Selection'}
