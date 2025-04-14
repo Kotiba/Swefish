@@ -7,7 +7,7 @@ import { SITE } from "@data/constants";
 import "@styles/global.css";
 
 // Setting expected props
-const { title = SITE.title, meta, structuredData, lang = "en" } = Astro.props;
+const { title = SITE.title, meta, structuredData, lang = "en", themeColor = "#fff" } = Astro.props;
 
 // Interface to type-check the properties
 interface Props {
@@ -15,6 +15,7 @@ interface Props {
   meta?: string;
   structuredData?: object;
   lang?: string;
+  themeColor?: string;
 }
 ---
 
@@ -25,7 +26,7 @@ We set the language of the page to English and add classes for scrollbar and scr
 <html lang={lang} class="scrollbar-hide lenis lenis-smooth scroll-pt-16">
   <head>
     <!-- Adding metadata to the HTML document -->
-    <Meta meta={meta} structuredData={structuredData} />
+    <Meta meta={meta} structuredData={structuredData} themeColor={themeColor} />
     <!-- Define the title of the page -->
     <title>{title}</title>
     <script is:inline>

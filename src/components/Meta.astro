@@ -18,6 +18,7 @@ const defaultProps = {
 const {
   meta = defaultProps.meta,
   structuredData = defaultProps.structuredData,
+  themeColor = "#fff"
 } = Astro.props;
 
 // Define the metadata for your website and individual pages
@@ -127,5 +128,5 @@ const appleTouchIcon = await getImage({
 <link href={appleTouchIcon.src} rel="apple-touch-icon" />
 <link href={appleTouchIcon.src} rel="shortcut icon" />
 <!-- Set theme color -->
-<meta name="theme-color" content="#fff" />
+<meta name="theme-color" content={themeColor} />
 
