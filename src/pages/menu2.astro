@@ -35,7 +35,7 @@ const displayCategories = noDataAvailable ? [] : filteredCategories;
 const verticalLayoutCategories = ['drinks', 'sauces'];
 ---
 
-<MainLayout title="Alternative Menu">
+<MainLayout title="Menu 2">
   {noDataAvailable || displayCategories.length === 0 ? (
     <div class="container mx-auto px-4 pt-32 pb-20">
       <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded relative" role="alert">
@@ -60,14 +60,14 @@ const verticalLayoutCategories = ['drinks', 'sauces'];
         {displayCategories.map((category) => (
           <section id={category.id} class="mb-12 scroll-mt-24">
             <h2 class="text-2xl font-bold mb-6">{category.title}</h2>
-            <div class="grid gap-6 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            <div class="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
               {category.items.map((item: MenuItemType) => {
                 // Use vertical layout for drinks and sauces categories, horizontal for others
                 const useVerticalLayout = verticalLayoutCategories.includes(category.id);
                 
                 return (
                   <div 
-                    class={`cursor-pointer ${!useVerticalLayout ? 'col-span-2' : ''}`}
+                    class="cursor-pointer"
                     data-menu-item={JSON.stringify({
                       ...item,
                       image: item.image,
