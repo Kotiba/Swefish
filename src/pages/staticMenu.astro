@@ -51,11 +51,11 @@ const displayCategories = noDataAvailable ? [] : filteredCategories;
     <>
       <Navbar categories={displayCategories} />
       
-      <main class="pt-32 pb-20 container mx-auto px-4 md:px-8 max-w-6xl">
+      <main class="pt-32 pb-20 container mx-auto px-4 md:px-8 max-w-7xl">
         {displayCategories.map((category) => (
           <section id={category.id} class="mb-12 scroll-mt-24">
             <h2 class="text-2xl font-bold mb-6">{category.title}</h2>
-            <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <div class="grid gap-6 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
               {category.items.map((item: MenuItemType) => (
                 <div 
                   class="cursor-pointer" 

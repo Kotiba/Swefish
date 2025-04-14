@@ -48,13 +48,13 @@ const imageSrc = getImage(image);
 
 {fullWidth ? (
   <div class="col-span-2">
-    <div class="bg-white rounded-xl overflow-hidden  border border-gray-200 shadow-sm hover:bg-[#FAFAFA]">
+    <div class="bg-white rounded-xl overflow-hidden border border-gray-200 shadow-sm hover:bg-[#FAFAFA]">
       <div class="flex gap-4 p-4">
-        <div class="w-28 h-28 sm:w-36 sm:h-36 md:w-56 md:h-56 bg-gray-200 flex-shrink-0 rounded-lg overflow-hidden">
+        <div class="w-28 h-28 sm:w-36 sm:h-36 md:w-56 md:h-56 bg-gray-200 flex-shrink-0 rounded-lg overflow-hidden flex items-center justify-center">
           <Image
             src={imageSrc}
             alt={title}
-            class="w-full h-full object-cover"
+            class="w-full h-auto max-h-full object-contain"
             draggable={false}
             loading="eager"
             format="avif"
@@ -77,8 +77,8 @@ const imageSrc = getImage(image);
     </div>
   </div>
 ) : (
-  <div class="bg-white rounded-xl overflow-hidden  border border-gray-200 shadow-sm hover:bg-[#FAFAFA]">
-    <div class="relative h-36 bg-gray-200">
+  <div class="bg-white rounded-xl overflow-hidden border border-gray-200 shadow-sm hover:bg-[#FAFAFA]">
+    <div class="w-full h-40 bg-gray-200 overflow-hidden">
       <Image
         src={imageSrc}
         alt={title}
