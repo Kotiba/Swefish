@@ -1,0 +1,66 @@
+---
+import { Image } from "astro:assets";
+import { getImage } from "../../utils/imageMap";
+import type { WeightOption } from "../../utils/types";
+import { formatPrice } from "../../utils/utils";
+
+const { 
+  title, 
+  description, 
+  price, 
+  image,
+  weightOptions = [] as WeightOption[],
+  hasMultiplePrices = false
+} = Astro.props;
+
+// Check if we have weight-based pricing
+const hasWeightOptions = weightOptions?.length > 0;
+
+// Get the lowest price from weight options if available
+let lowestWeightPrice: number | null = null;
+if (hasWeightOptions) {
+  lowestWeightPrice = weightOptions.reduce((lowest: number | null, option: WeightOption) => 
+    option.price !== undefined && (lowest === null || option.price < lowest) 
+      ? option.price 
+      : lowest, 
+    null as number | null
+  );
+}
+
+// Use base price or lowest weight price
+const displayPrice = price !== undefined && price !== null 
+  ? price 
+  : lowestWeightPrice;
+
+const formattedPrice = displayPrice !== undefined ? formatPrice(displayPrice) : 'Price on Selection';
+
+// Get the actual image from the image reference
+const imageSrc = getImage(image);
+---
+
+<div class="bg-white rounded-xl overflow-hidden border border-gray-200 shadow-sm hover:bg-[#FAFAFA] h-full">
+  <div class="flex flex-row h-full">
+    <div class="w-2/5 bg-gray-200">
+      <Image
+        src={imageSrc}
+        alt={title}
+        class="w-full h-full object-cover"
+        draggable={false}
+        loading="eager"
+        format="avif"
+      />
+    </div>
+    
+    <div class="p-4 w-3/5">
+      <h3 class="font-medium text-lg mb-2">{title}</h3>
+      
+      <p class="text-sm text-gray-600 mb-auto line-clamp-3">{description}</p>
+      
+      <p class="text-base font-medium text-gray-900 mt-2">
+        {displayPrice !== null 
+          ? (hasMultiplePrices || hasWeightOptions ? `From EGP ${formattedPrice}` : `EGP ${formattedPrice}`) 
+          : 'Price on Selection'}
+      </p>
+    </div>
+  </div>
+</div> 

@@ -1,7 +1,8 @@
 ---
 import MainLayout from "../layouts/MainLayout.astro";
 import Navbar from "../components/navbars/Navbar3.astro";
-import MenuItem from "../components/MenuItems/MenuItem3.astro";
+import MenuItemVertical from "../components/MenuItems/MenuItemVertical.astro";
+import MenuItemHorizontal from "../components/MenuItems/MenuItemHorizontal.astro";
 import MenuItemDrawer from "../components/MenuItems/MenuItemDrawer";
 import type { MenuData, MenuItem as MenuItemType } from "../utils/types";
 
@@ -11,21 +12,6 @@ import staticMenuData from "../data_files/menu.json";
 // Cast the imported data to our type
 const menuData: MenuData = staticMenuData as MenuData;
 const { menuCategories } = menuData;
-
-// Create a test item with fullWidth to showcase the horizontal layout
-const testFullWidthItem = {
-  title: "Test Full Width Item - Horizontal Layout",
-  description: "This is a test item to showcase the horizontal card layout with the image on the left and content on the right. This should span the full width of two columns in the grid.",
-  price: 365,
-  image: "grilledLemonGarlic",
-  fullWidth: true,
-  isTopRated: true,
-  hasMultiplePrices: true,
-  weightOptions: [
-    { weight: "250 gm", price: 365 },
-    { weight: "500 gm", price: 684 }
-  ]
-};
 
 // Fallback message if we have no data (this shouldn't happen in production)
 const noDataAvailable = menuCategories.length === 0 || 
@@ -44,9 +30,12 @@ const filteredCategories = processedCategories.filter(category => category.items
 
 // Use the filtered data if we have real data, otherwise show the warning
 const displayCategories = noDataAvailable ? [] : filteredCategories;
+
+// Categories that should use vertical layout
+const verticalLayoutCategories = ['drinks', 'sauces'];
 ---
 
-<MainLayout title="Static Menu">
+<MainLayout title="Alternative Menu">
   {noDataAvailable || displayCategories.length === 0 ? (
     <div class="container mx-auto px-4 pt-32 pb-20">
       <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded relative" role="alert">
@@ -56,7 +45,6 @@ const displayCategories = noDataAvailable ? [] : filteredCategories;
           This could be because:
           <ul class="list-disc pl-5 mt-1">
             <li>The build process couldn't connect to the database</li>
-            <li>The the database wasn't properly configured</li>
             <li>The build script encountered an error</li>
           </ul>
         </p>
@@ -67,79 +55,38 @@ const displayCategories = noDataAvailable ? [] : filteredCategories;
       <Navbar categories={displayCategories} />
       
       <main class="pt-32 pb-20 container mx-auto px-4 md:px-8 max-w-7xl">
-        <!-- Test Section for Full Width Layout -->
-        <section class="mb-12">
-          <h2 class="text-2xl font-bold mb-6">Test Full Width Layout</h2>
-          <div class="grid gap-6 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            <div 
-              class="cursor-pointer col-span-2" 
-              data-menu-item={JSON.stringify({
-                ...testFullWidthItem,
-                image: testFullWidthItem.image
-              })}
-              onclick="handleMenuItemClick(this)"
-            >
-              <MenuItem {...testFullWidthItem} />
-            </div>
-            <!-- Add a regular item next to the full-width item -->
-            <div 
-              class="cursor-pointer" 
-              data-menu-item={JSON.stringify({
-                title: "Regular Item",
-                description: "This is a regular item next to a full-width item",
-                price: 45,
-                image: "fries"
-              })}
-              onclick="handleMenuItemClick(this)"
-            >
-              <MenuItem 
-                title="Regular Item" 
-                description="This is a regular item next to a full-width item" 
-                price={45}
-                image="fries"
-              />
-            </div>
-            <div 
-              class="cursor-pointer" 
-              data-menu-item={JSON.stringify({
-                title: "Another Regular Item",
-                description: "Another regular item to demonstrate layout",
-                price: 25,
-                image: "pepsi"
-              })}
-              onclick="handleMenuItemClick(this)"
-            >
-              <MenuItem 
-                title="Another Regular Item" 
-                description="Another regular item to demonstrate layout" 
-                price={25}
-                image="pepsi"
-              />
-            </div>
-          </div>
-        </section>
+
         
         {displayCategories.map((category) => (
           <section id={category.id} class="mb-12 scroll-mt-24">
             <h2 class="text-2xl font-bold mb-6">{category.title}</h2>
             <div class="grid gap-6 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-              {category.items.map((item: MenuItemType) => (
-                <div 
-                  class={`cursor-pointer ${item.fullWidth ? 'col-span-2' : ''}`}
-                  data-menu-item={JSON.stringify({
-                    ...item,
-                    image: item.image,
-                    price: item.price === undefined ? null : item.price,
-                    weightOptions: item.weightOptions?.map(option => ({
-                      weight: option.weight,
-                      price: typeof option.price === 'number' ? option.price : 0
-                    }))
-                  })}
-                  onclick="handleMenuItemClick(this)"
-                >
-                  <MenuItem {...item} />
-                </div>
-              ))}
+              {category.items.map((item: MenuItemType) => {
+                // Use vertical layout for drinks and sauces categories, horizontal for others
+                const useVerticalLayout = verticalLayoutCategories.includes(category.id);
+                
+                return (
+                  <div 
+                    class={`cursor-pointer ${!useVerticalLayout ? 'col-span-2' : ''}`}
+                    data-menu-item={JSON.stringify({
+                      ...item,
+                      image: item.image,
+                      price: item.price === undefined ? null : item.price,
+                      weightOptions: item.weightOptions?.map(option => ({
+                        weight: option.weight,
+                        price: typeof option.price === 'number' ? option.price : 0
+                      }))
+                    })}
+                    onclick="handleMenuItemClick(this)"
+                  >
+                    {useVerticalLayout ? (
+                      <MenuItemVertical {...item} />
+                    ) : (
+                      <MenuItemHorizontal {...item} />
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </section>
         ))}

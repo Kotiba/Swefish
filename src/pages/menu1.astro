@@ -1,0 +1,181 @@
+---
+import MainLayout from "../layouts/MainLayout.astro";
+import Navbar from "../components/navbars/Navbar3.astro";
+import MenuItemVertical from "../components/MenuItems/MenuItemVertical.astro";
+import MenuItemHorizontal from "../components/MenuItems/MenuItemHorizontal.astro";
+import MenuItemDrawer from "../components/MenuItems/MenuItemDrawer";
+import type { MenuData, MenuItem as MenuItemType } from "../utils/types";
+
+// Import the static JSON data instead of fetching from API
+import staticMenuData from "../data_files/menu.json";
+
+// Cast the imported data to our type
+const menuData: MenuData = staticMenuData as MenuData;
+const { menuCategories } = menuData;
+
+// Create a test item with fullWidth to showcase the horizontal layout
+const testFullWidthItem = {
+  title: "Test Full Width Item - Horizontal Layout",
+  description: "This is a test item to showcase the horizontal card layout with the image on the left and content on the right. This should span the full width of two columns in the grid.",
+  price: 365,
+  image: "grilledLemonGarlic",
+  fullWidth: true,
+  isTopRated: true,
+  hasMultiplePrices: true,
+  weightOptions: [
+    { weight: "250 gm", price: 365 },
+    { weight: "500 gm", price: 684 }
+  ]
+};
+
+// Fallback message if we have no data (this shouldn't happen in production)
+const noDataAvailable = menuCategories.length === 0 || 
+  (menuCategories.length === 1 && menuCategories[0].id === "placeholder");
+
+// Filter out any items with placeholder images that might cause errors
+const processedCategories = menuCategories.map(category => {
+  return {
+    ...category,
+    items: category.items.filter(item => item.image !== "placeholder" && item.image !== "menuPlaceholder")
+  };
+});
+
+// Remove any empty categories after filtering
+const filteredCategories = processedCategories.filter(category => category.items.length > 0);
+
+// Use the filtered data if we have real data, otherwise show the warning
+const displayCategories = noDataAvailable ? [] : filteredCategories;
+---
+
+<MainLayout title="Menu 1">
+  {noDataAvailable || displayCategories.length === 0 ? (
+    <div class="container mx-auto px-4 pt-32 pb-20">
+      <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded relative" role="alert">
+        <strong class="font-bold">Menu data is loading or not available.</strong>
+        <span class="block sm:inline"> The menu data could not be loaded properly during the build process.</span>
+        <p class="mt-2">
+          This could be because:
+          <ul class="list-disc pl-5 mt-1">
+            <li>The build process couldn't connect to the database</li>
+            <li>The the database wasn't properly configured</li>
+            <li>The build script encountered an error</li>
+          </ul>
+        </p>
+      </div>
+    </div>
+  ) : (
+    <>
+      <Navbar categories={displayCategories} />
+      
+      <main class="pt-32 pb-20 container mx-auto px-4 md:px-8 max-w-7xl">
+        <div class="mb-8">
+          <h1 class="text-2xl font-bold">Menu 1</h1>
+          <p class="text-gray-600 text-sm mt-1">Using item-specific layout settings (fullWidth property)</p>
+        </div>
+        
+        
+        {displayCategories.map((category) => (
+          <section id={category.id} class="mb-12 scroll-mt-24">
+            <h2 class="text-2xl font-bold mb-6">{category.title}</h2>
+            <div class="grid gap-6 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+              {category.items.map((item: MenuItemType) => (
+                <div 
+                  class={`cursor-pointer ${item.fullWidth ? 'col-span-2' : ''}`}
+                  data-menu-item={JSON.stringify({
+                    ...item,
+                    image: item.image,
+                    price: item.price === undefined ? null : item.price,
+                    weightOptions: item.weightOptions?.map(option => ({
+                      weight: option.weight,
+                      price: typeof option.price === 'number' ? option.price : 0
+                    }))
+                  })}
+                  onclick="handleMenuItemClick(this)"
+                >
+                  {item.fullWidth ? (
+                    <MenuItemHorizontal {...item} />
+                  ) : (
+                    <MenuItemVertical {...item} />
+                  )}
+                </div>
+              ))}
+            </div>
+          </section>
+        ))}
+      </main>
+
+      <MenuItemDrawer client:load />
+    </>
+  )}
+</MainLayout>
+
+<script>
+  import type { MenuItem } from '../utils/types';
+
+  declare global {
+    interface Window {
+      handleMenuItemClick: (element: HTMLElement) => void;
+      updateDrawerState: (item: MenuItem | null, isOpen: boolean) => void;
+    }
+  }
+
+  // Make the click handler available globally
+  window.handleMenuItemClick = (element: HTMLElement) => {
+    try {
+      const itemData = element.getAttribute('data-menu-item');
+      if (itemData && window.updateDrawerState) {
+        const parsedItem = JSON.parse(itemData);
+        
+        // Ensure the item has all required properties before passing to drawer
+        const validItem: MenuItem = {
+          title: parsedItem.title || '',
+          description: parsedItem.description || '',
+          price: parsedItem.price === undefined ? null : parsedItem.price,
+          image: parsedItem.image || '',
+          fullWidth: !!parsedItem.fullWidth,
+          isTopRated: !!parsedItem.isTopRated,
+          weightOptions: Array.isArray(parsedItem.weightOptions) 
+            ? parsedItem.weightOptions.map((opt: any) => ({
+                weight: opt.weight || '',
+                price: typeof opt.price === 'number' ? opt.price : 0
+              }))
+            : undefined,
+          allergens: Array.isArray(parsedItem.allergens) ? parsedItem.allergens : undefined
+        };
+        
+        window.updateDrawerState(validItem, true);
+      }
+    } catch (error) {
+      console.error('Error handling menu item click:', error);
+    }
+  };
+
+  class MenuItemDrawerElement extends HTMLElement {
+    constructor() {
+      super();
+      this.render();
+    }
+
+    static get observedAttributes(): string[] {
+      return ['item', 'is-open'];
+    }
+
+    attributeChangedCallback(name: string, oldValue: string | null, newValue: string | null) {
+      if (oldValue !== newValue) {
+        this.render();
+      }
+    }
+
+    render() {
+      const itemAttr = this.getAttribute('item');
+      const item = itemAttr ? (JSON.parse(itemAttr) as MenuItem) : null;
+      const isOpen = this.getAttribute('is-open') === 'true';
+      
+      if (window.updateDrawerState) {
+        window.updateDrawerState(item, isOpen);
+      }
+    }
+  }
+
+  customElements.define('menu-item-drawer', MenuItemDrawerElement);
+</script> 

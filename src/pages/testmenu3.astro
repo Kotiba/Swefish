@@ -1,7 +1,8 @@
 ---
 import MainLayout from "../layouts/MainLayout.astro";
 import Navbar from "../components/navbars/Navbar3.astro";
-import MenuItem from "../components/MenuItems/MenuItem3.astro";
+import MenuItemVertical from "../components/MenuItems/MenuItemVertical.astro";
+import MenuItemHorizontal from "../components/MenuItems/MenuItemHorizontal.astro";
 import MenuItemDrawer from "../components/MenuItems/MenuItemDrawer";
 import menuData from "../data_files/menu.json" assert { type: "json" };
 import type { MenuData, MenuItem as MenuItemType } from "../utils/types";
@@ -26,7 +27,11 @@ const { menuCategories } = menuData as MenuData;
               })}
               onclick="handleMenuItemClick(this)"
             >
-              <MenuItem {...item} />
+              {item.fullWidth ? (
+                <MenuItemHorizontal {...item} />
+              ) : (
+                <MenuItemVertical {...item} />
+              )}
             </div>
           ))}
         </div>

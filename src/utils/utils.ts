@@ -12,4 +12,10 @@ function capitalize(str:string): string {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-  export { formatDate, capitalize };
+// Format price to have 2 decimal places only when needed
+function formatPrice(price: number | null | undefined): string {
+  if (price === null || price === undefined) return 'Price on Selection';
+  return Number.isInteger(price) ? price.toString() : price.toFixed(2);
+}
+
+export { formatDate, capitalize, formatPrice };
