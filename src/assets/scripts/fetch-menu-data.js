@@ -2,7 +2,7 @@ import fs from 'fs/promises';
 import path from 'path';
 
 async function fetchMenuData() {
-  const SHEET_ID = "1CUwPy5sBT74GL2RJOlWhQGe3a-socclwLjVE1CxSYLA";
+  const SHEET_ID = "1q1XigLb1Z_WM1z_a_0-ISqPvkyG9VmsJmD-IlpCWBVk";
   const SHEET_NAME = "Menu";
   const API_URL = `https://opensheet.elk.sh/${SHEET_ID}/${SHEET_NAME}`;
   const OUTPUT_FILE = path.resolve(process.cwd(), 'src/data_files/menu.json');
@@ -102,16 +102,28 @@ function processMenuData(items) {
     // Process the weight options
     const weightOptions = parseWeightOptions(item.weightOptions);
     
+    // Calculate minimum price from weight options if available
+    let itemPrice = null;
+    
+    if (item.price === "Price on Selection" && weightOptions.length > 0) {
+      // Find the minimum price from weight options
+      itemPrice = Math.min(...weightOptions.map(option => option.price));
+    } else {
+      itemPrice = item.price === "Price on Selection" ? null : parseFloat(item.price) || null;
+    }
+    
     // Create the menu item
     const menuItem = {
       title: item.title,
       description: item.description,
-      price: parseFloat(item.price),
+      price: itemPrice,
       image: item.image,
       fullWidth: item.fullWidth === "true",
       isTopRated: item.isTopRated === "true",
       ...(weightOptions.length > 0 && { weightOptions }),
-      ...(item.allergens && { allergens: item.allergens.split(',').map(a => a.trim()) })
+      ...(item.allergens && { allergens: item.allergens.split(',').map(a => a.trim()) }),
+      ...(item.oldPrice && { oldPrice: parseFloat(item.oldPrice) || null }),
+      hasMultiplePrices: item.hasMultiplePrices === "true" || weightOptions.length > 0
     };
     
     // Add the item to its category

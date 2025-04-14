@@ -10,6 +10,12 @@ declare global {
   }
 }
 
+// Format price to display integers without decimal points
+const formatPrice = (price: number | null | undefined): string => {
+  if (price === null || price === undefined) return 'Price on Selection';
+  return Number.isInteger(price) ? price.toString() : price.toFixed(2);
+};
+
 export default function MenuItemDrawer() {
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [isOpen, setIsOpen] = useState(false);
@@ -47,7 +53,11 @@ export default function MenuItemDrawer() {
                     {selectedItem.title}
                   </Drawer.Title>
                   <div className="text-yellow-600 font-semibold">
-                    ${selectedItem.price.toFixed(2)}
+                    {selectedItem.price !== undefined && selectedItem.price !== null 
+                      ? (selectedItem.hasMultiplePrices 
+                          ? `From EGP ${formatPrice(selectedItem.price)}` 
+                          : `EGP ${formatPrice(selectedItem.price)}`) 
+                      : 'Price on Selection'}
                   </div>
                   <p className="text-gray-600">
                     {selectedItem.description}
@@ -62,7 +72,9 @@ export default function MenuItemDrawer() {
                       <strong>Available Sizes:</strong>
                       {selectedItem.weightOptions.map((option) => (
                         <span key={option.weight} className="ml-2">
-                          {option.weight} (${option.price.toFixed(2)})
+                          {option.weight} {option.price !== undefined 
+                            ? `(EGP ${formatPrice(option.price)})` 
+                            : ''}
                         </span>
                       ))}
                     </div>

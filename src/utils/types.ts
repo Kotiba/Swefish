@@ -8,12 +8,14 @@ export interface WeightOption {
 export interface MenuItem {
   title: string;
   description: string;
-  price: number;
+  price: number | null;
   image: string;
   fullWidth?: boolean;
   isTopRated?: boolean;
   weightOptions?: WeightOption[];
   allergens?: string[];
+  oldPrice?: number | null;
+  hasMultiplePrices?: boolean;
 }
 
 export interface MenuCategory {

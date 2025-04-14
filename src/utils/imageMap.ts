@@ -23,10 +23,18 @@ import pepsiDiet from "../images/products/Pepsi Diet.jpg";
 import pepsi from "../images/products/Pepsi.jpg";
 import roquefortSauce from "../images/products/Roquefort Sauce.jpg";
 import shrimpBisque from "../images/products/Shrimp Bisque Soup.jpg";
-import specialRice from "../images/products/SWEFISH Special Rice Large.jpg";
+import specialRice from "../images/products/Special Rice.jpg";
 import sevenUp from "../images/products/7UP.jpg";
 import barbecueSauce from "../images/products/Barbecue Sauce.jpg";
 import birell from "../images/products/Birell Malt Drink Can.jpg";
+import friedShrimpButterfly from "../images/products/Fried Butterfly Shrimp.jpg";
+import shrimpGrilledOliveOil from "../images/products/Shrimp Grilled With Olive Oil and Lemon.jpg";
+import shrimpAndChips from "../images/products/The Shrimp and Chips.jpg";
+import crispyFishSandwich from "../images/products/Crispy Fish Fillet Sandwich.jpg";
+import specialOffer from "../images/products/special offer.jpg";
+// Add your new image imports here
+// Example:
+// import newProductName from "../images/products/New Product Name.jpg";
 
 // Create a map of image references to imported images
 const imageMap: Record<string, ImageMetadata> = {
@@ -55,7 +63,15 @@ const imageMap: Record<string, ImageMetadata> = {
   specialRice,
   sevenUp,
   barbecueSauce,
-  birell
+  birell,
+  friedShrimpButterfly,
+  shrimpGrilledOliveOil,
+  shrimpAndChips,
+  crispyFishSandwich,
+  specialOffer
+  // Add your new image references here
+  // Example:
+  // newProductName,
 };
 
 export function getImage(imageRef: string): ImageMetadata {

@@ -61,7 +61,12 @@ const displayCategories = noDataAvailable ? [] : filteredCategories;
                   class="cursor-pointer" 
                   data-menu-item={JSON.stringify({
                     ...item,
-                    image: item.image
+                    image: item.image,
+                    price: item.price === undefined ? null : item.price,
+                    weightOptions: item.weightOptions?.map(option => ({
+                      weight: option.weight,
+                      price: typeof option.price === 'number' ? option.price : 0
+                    }))
                   })}
                   onclick="handleMenuItemClick(this)"
                 >
@@ -90,10 +95,32 @@ const displayCategories = noDataAvailable ? [] : filteredCategories;
 
   // Make the click handler available globally
   window.handleMenuItemClick = (element: HTMLElement) => {
-    const itemData = element.getAttribute('data-menu-item');
-    if (itemData && window.updateDrawerState) {
-      const item = JSON.parse(itemData) as MenuItem;
-      window.updateDrawerState(item, true);
+    try {
+      const itemData = element.getAttribute('data-menu-item');
+      if (itemData && window.updateDrawerState) {
+        const parsedItem = JSON.parse(itemData);
+        
+        // Ensure the item has all required properties before passing to drawer
+        const validItem: MenuItem = {
+          title: parsedItem.title || '',
+          description: parsedItem.description || '',
+          price: parsedItem.price === undefined ? null : parsedItem.price,
+          image: parsedItem.image || '',
+          fullWidth: !!parsedItem.fullWidth,
+          isTopRated: !!parsedItem.isTopRated,
+          weightOptions: Array.isArray(parsedItem.weightOptions) 
+            ? parsedItem.weightOptions.map((opt: any) => ({
+                weight: opt.weight || '',
+                price: typeof opt.price === 'number' ? opt.price : 0
+              }))
+            : undefined,
+          allergens: Array.isArray(parsedItem.allergens) ? parsedItem.allergens : undefined
+        };
+        
+        window.updateDrawerState(validItem, true);
+      }
+    } catch (error) {
+      console.error('Error handling menu item click:', error);
     }
   };
 

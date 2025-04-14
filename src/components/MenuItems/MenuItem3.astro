@@ -39,14 +39,20 @@ const {
   image, 
   isTopRated = false, 
   fullWidth = false,
-  weightOptions = [] as WeightOption[]
+  weightOptions = [] as WeightOption[],
+  hasMultiplePrices = false
 } = Astro.props;
 
-// Format price to have 2 decimal places
-const formattedPrice = price.toFixed(2);
+// Format price to have 2 decimal places only when needed
+const formatPrice = (price: number | null | undefined): string => {
+  if (price === null || price === undefined) return 'Price on Selection';
+  return Number.isInteger(price) ? price.toString() : price.toFixed(2);
+};
+
+const formattedPrice = price !== undefined ? formatPrice(price) : 'Price on Selection';
 
 // Check if we have weight-based pricing
-const hasWeightOptions = weightOptions.length > 0;
+const hasWeightOptions = weightOptions?.length > 0;
 
 // Get the actual image from the image reference
 const imageSrc = getImage(image);
@@ -79,12 +85,16 @@ const imageSrc = getImage(image);
                 <div class="px-3 py-1 bg-gray-50 rounded-full text-xs sm:text-sm">
                   <span class="font-medium text-gray-800">{option.weight}</span>
                   <span class="mx-1 text-gray-400">•</span>
-                  <span class="text-gray-900">EGP {option.price.toFixed(2)}</span>
+                  <span class="text-gray-900">EGP {option.price !== undefined ? (Number.isInteger(option.price) ? option.price : option.price.toFixed(2)) : '0'}</span>
                 </div>
               ))}
             </div>
           ) : (
-            <p class="text-sm font-medium text-gray-900 mt-2">EGP {formattedPrice}</p>
+            <p class="text-sm font-medium text-gray-900 mt-2">
+              {price !== undefined && price !== null 
+                ? (hasMultiplePrices ? `From EGP ${formattedPrice}` : `EGP ${formattedPrice}`) 
+                : 'Price on Selection'}
+            </p>
           )}
         </div>
       </div>
@@ -116,12 +126,16 @@ const imageSrc = getImage(image);
             <div class="px-2 py-0.5 bg-gray-50 rounded-full text-xs mt-1">
               <span class="font-medium text-gray-800">{option.weight}</span>
               <span class="mx-0.5 text-gray-400">•</span>
-              <span class="text-gray-900">EGP {option.price.toFixed(2)}</span>
+              <span class="text-gray-900">EGP {option.price !== undefined ? (Number.isInteger(option.price) ? option.price : option.price.toFixed(2)) : '0'}</span>
             </div>
           ))}
         </div>
       ) : (
-        <p class="text-sm font-medium text-gray-900 mt-1">EGP {formattedPrice}</p>
+        <p class="text-sm font-medium text-gray-900 mt-1">
+          {price !== undefined && price !== null 
+            ? (hasMultiplePrices ? `From EGP ${formattedPrice}` : `EGP ${formattedPrice}`) 
+            : 'Price on Selection'}
+        </p>
       )}
     </div>
   </div>
