@@ -1,77 +1,118 @@
 import type { ImageMetadata } from 'astro';
 
-// Import all product images
-import srirachaTahini from "../images/products/Sriracha Tahini.jpg";
-import sweetChili from "../images/products/Sweet Chili.jpg";
-import specialBread from "../images/products/Swefish Special Bread.jpg";
-import specialVeggies from "../images/products/Swefish Special Vegetables.jpg";
-import fishAndChips from "../images/products/The Fish & Chips.jpg";
-import tartarSauce from "../images/products/Capers Tartar Sauce.jpg";
-import cheddarSauce from "../images/products/Cheddar Sauce.jpg";
-import coleslaw from "../images/products/Coleslaw.jpg";
-import friedFish from "../images/products/Fried Fish Fillet.jpg";
-import fries from "../images/products/Fries Packet.jpg";
-import greenSalad from "../images/products/Green Salad WIth Mustard Vinaigrette Dressing.jpg";
+// *Grilled*
 import grilledLemonGarlic from "../images/products/Grilled With Lemon Garlic Butter Sauce.jpg";
+import shrimpGrilledLemonGarlic from "../images/products/shrimp grilled lemon garlic.jpg";
 import grilledOliveOil from "../images/products/Grilled With Olive Oil & Lemon.jpg";
-import honeyMustard from "../images/products/Honey Mustard.jpg";
-import kidsMeal from "../images/products/Kids Meal.jpg";
-import lemonGarlicSauce from "../images/products/Lemon Garlic Butter Sauce Large.jpg";
-import mineralWater from "../images/products/Mineral Water.jpg";
-import mirinda from "../images/products/Mirinda Orange.jpg";
-import pepsiDiet from "../images/products/Pepsi Diet.jpg";
-import pepsi from "../images/products/Pepsi.jpg";
-import roquefortSauce from "../images/products/Roquefort Sauce.jpg";
-import shrimpBisque from "../images/products/Shrimp Bisque Soup.jpg";
-import specialRice from "../images/products/Special Rice.jpg";
-import sevenUp from "../images/products/7UP.jpg";
-import barbecueSauce from "../images/products/Barbecue Sauce.jpg";
-import birell from "../images/products/Birell Malt Drink Can.jpg";
-import friedShrimpButterfly from "../images/products/Fried Butterfly Shrimp.jpg";
 import shrimpGrilledOliveOil from "../images/products/Shrimp Grilled With Olive Oil and Lemon.jpg";
-import shrimpAndChips from "../images/products/The Shrimp and Chips.jpg";
+
+// *The Fish/Shrimp & Chips Meals*
+import fishAndChips from "../images/products/The Fish & Chips.jpg";
+import shrimpAndChips from "../images/products/Shrimp and Chips.jpg";
+
+// *The Fried*
+import friedFish from "../images/products/Fried Fish Fillet.jpg";
+import friedShrimpButterfly from "../images/products/Fried Butterfly Shrimp.jpg";
+
+// *Soup*
+import shrimpBisque from "../images/products/Shrimp Bisque Soup.jpg";
+
+// *Sandwiches*
 import crispyFishSandwich from "../images/products/Crispy Fish Fillet Sandwich.jpg";
+
+// *Offers*
 import specialOffer from "../images/products/special offer.jpg";
-// Add your new image imports here
-// Example:
-// import newProductName from "../images/products/New Product Name.jpg";
+
+// *Extras*
+import fries from "../images/products/Fries Packet.jpg";
+import specialBread from "../images/products/Swefish Special Bread.jpg";
+import specialRice from "../images/products/Special Rice.jpg";
+import specialVeggies from "../images/products/Swefish Special Vegetables.jpg";
+
+// *Sauces*
+import lemonGarlicSauce from "../images/products/Lemon Garlic Butter Sauce Large.jpg";
+import sweetChili from "../images/products/Sweet Chili.jpg";
+import srirachaTahini from "../images/products/Sriracha Tahini.jpg";
+import roquefortSauce from "../images/products/Roquefort Sauce.jpg";
+import cheddarSauce from "../images/products/Cheddar Sauce.jpg";
+import honeyMustard from "../images/products/Honey Mustard.jpg";
+import tartarSauce from "../images/products/Capers Tartar Sauce.jpg";
+import barbecueSauce from "../images/products/Barbecue Sauce.jpg";
+
+// *Salads*
+import coleslaw from "../images/products/Coleslaw.jpg";
+import greenSalad from "../images/products/Green Salad WIth Mustard Vinaigrette Dressing.jpg";
+
+// *Kids Meal*
+import kidsMeal from "../images/products/Kids Meal.jpg";
+
+// *Drinks*
+import pepsi from "../images/products/Pepsi.jpg";
+import mirinda from "../images/products/Mirinda Orange.jpg";
+import mineralWater from "../images/products/Mineral Water.jpg";
+import birell from "../images/products/Birell Malt Drink Can.jpg";
+
+// Additional items not in categories
+import pepsiDiet from "../images/products/Pepsi Diet.jpg";
+import sevenUp from "../images/products/7UP.jpg";
 
 // Create a map of image references to imported images
 const imageMap: Record<string, ImageMetadata> = {
-  srirachaTahini,
-  sweetChili,
-  specialBread,
-  specialVeggies,
-  fishAndChips,
-  tartarSauce,
-  cheddarSauce,
-  coleslaw,
-  friedFish,
-  fries,
-  greenSalad,
+  // *Grilled*
   grilledLemonGarlic,
+  shrimpGrilledLemonGarlic,
   grilledOliveOil,
-  honeyMustard,
-  kidsMeal,
-  lemonGarlicSauce,
-  mineralWater,
-  mirinda,
-  pepsiDiet,
-  pepsi,
-  roquefortSauce,
-  shrimpBisque,
-  specialRice,
-  sevenUp,
-  barbecueSauce,
-  birell,
-  friedShrimpButterfly,
   shrimpGrilledOliveOil,
+  
+  // *The Fish/Shrimp & Chips Meals*
+  fishAndChips,
   shrimpAndChips,
+  
+  // *The Fried*
+  friedFish,
+  friedShrimpButterfly,
+  
+  // *Soup*
+  shrimpBisque,
+  
+  // *Sandwiches*
   crispyFishSandwich,
-  specialOffer
-  // Add your new image references here
-  // Example:
-  // newProductName,
+  
+  // *Offers*
+  specialOffer,
+  
+  // *Extras*
+  fries,
+  specialBread,
+  specialRice,
+  specialVeggies,
+  
+  // *Sauces*
+  lemonGarlicSauce,
+  sweetChili,
+  srirachaTahini,
+  roquefortSauce,
+  cheddarSauce,
+  honeyMustard,
+  tartarSauce,
+  barbecueSauce,
+  
+  // *Salads*
+  coleslaw,
+  greenSalad,
+  
+  // *Kids Meal*
+  kidsMeal,
+  
+  // *Drinks*
+  pepsi,
+  mirinda,
+  mineralWater,
+  birell,
+  
+  // Additional items
+  pepsiDiet,
+  sevenUp
 };
 
 export function getImage(imageRef: string): ImageMetadata {

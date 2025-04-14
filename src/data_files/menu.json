@@ -35,7 +35,7 @@
             "title": "Grilled Shrimp with Lemon Garlic Butter Sauce",
             "description": "Enjoy grilled shrimp with a delicious creamy sauce of fresh butter, refreshing lemon, local garlic flavor and special Swish seasoning. We offer extra butter, garlic and lemon sauce for free. Choose the appropriate weight of shrimp from this variety.",
             "price": 319,
-            "image": "grilledLemonGarlic",
+            "image": "shrimpGrilledLemonGarlic",
             "fullWidth": false,
             "isTopRated": false,
             "hasMultiplePrices": true,
@@ -86,7 +86,7 @@
           {
             "title": "Shrimp Grilled With Olive Oil & Lemon",
             "description": "Healthy and keto-friendly grilled shrimp with pure extra virgin olive oil and refreshing lemon juice. Free portion of fresh grilled swefish vegetables seasoned with our special seasoning. Choose the appropriate shrimp weight from this item.",
-            "image": "grilledOliveOil",
+            "image": "shrimpGrilledOliveOil",
             "fullWidth": false,
             "isTopRated": false,
             "weightOptions": [
@@ -142,7 +142,7 @@
           {
             "title": "The Shrimp & Chips",
             "description": "Fresh butterfly shrimp, lightly battered and deep-fried to a perfect golden-brown, served with our farm grown potatoes and complimentary sauces. Choose your desired shrimp weight.",
-            "image": "fishAndChips",
+            "image": "shrimpAndChips",
             "fullWidth": false,
             "isTopRated": false,
             "weightOptions": [
