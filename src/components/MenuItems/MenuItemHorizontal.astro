@@ -40,11 +40,11 @@ const imageSrc = getImage(image);
 
 <div class="bg-white rounded-xl overflow-hidden border border-gray-200 shadow-sm hover:bg-[#FAFAFA] h-full">
   <div class="flex flex-row h-full">
-    <div class="w-2/5 bg-gray-200">
+    <div class="w-2/5 relative">
       <Image
         src={imageSrc}
         alt={title}
-        class="w-full h-full object-cover"
+        class="w-full h-full object-cover object-center"
         draggable={false}
         loading="eager"
         format="avif"
