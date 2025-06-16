@@ -15,7 +15,7 @@
     "@astrojs/mdx": "^4.2.3",
     "@astrojs/react": "^4.2.3",
     "@astrojs/sitemap": "^3.3.0",
-    "@astrojs/starlight": "^0.32.5",
+    "@astrojs/starlight": "^0.34.4",
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.1",
     "astro": "^5.5.6",
